@@ -2,10 +2,20 @@ package main
 
 import (
 	"github.com/edify42/temp-golang/command"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/jpillora/opts"
 )
+
+func initZapLog() *zap.Logger {
+	config := zap.NewDevelopmentConfig()
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	config.EncoderConfig.TimeKey = "timestamp"
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger, _ := config.Build()
+	return logger
+}
 
 //set this via ldflags (see https://stackoverflow.com/q/11354518)
 var version = "0.0.0"
@@ -23,6 +33,11 @@ type Config struct {
 
 func main() {
 	c := Config{}
+	loggerMgr := initZapLog()
+	zap.ReplaceGlobals(loggerMgr)
+	defer loggerMgr.Sync() // flushes buffer, if any
+	logger := loggerMgr.Sugar()
+	logger.Debug("Started the zap logger!")
 	opts.New(&c).
 		AddCommand(
 			opts.New(&Init{}),
@@ -31,10 +46,10 @@ func main() {
 		Version(version).
 		Parse().
 		Run()
-	log.Printf("%+v", c)
+	zap.S().Infof("%+v", c)
 
 	if len(c.Dir) != 0 {
-		log.Info("hello")
+		zap.S().Infof("hello")
 	}
 
 }
@@ -42,20 +57,31 @@ func main() {
 // Init does things to initialise the configuration
 type Init struct {
 	Location string `opts:"help=specify where the config.yaml file will be dropped"`
+	Include  string `opts:"help=specify which file extensions should be included,default=*"`
+	Exclude  string `opts:"help=exclude certain file extensions,default=nil"`
 }
 
 // Run will run init...yeah!
 func (f *Init) Run() {
+	var config command.Config
 	if len(f.Location) > 0 {
-		log.Infof("Location of the config will be stored in %s", f.Location)
+		zap.S().Infof("Location of the config will be stored in %s", f.Location)
+		config.NewLocation(f.Location)
 	}
 
-	var input command.Input
-	input.Location = f.Location
+	if len(f.Include) > 0 {
+		zap.S().Infof("Will look for files with extensions %s", f.Include)
+		config.AddInclude(f.Include)
+	}
 
-	err := input.RunInit()
+	if len(f.Exclude) > 0 {
+		zap.S().Infof("Will exclude the following file extensions %s", f.Exclude)
+		config.AddExclude(f.Exclude)
+	}
+
+	err := config.RunInit()
 
 	if err != nil {
-		log.Errorf("Not able to init - exiting because: %v", err)
+		zap.S().Errorf("Not able to init - exiting because: %v", err)
 	}
 }

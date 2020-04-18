@@ -3,51 +3,36 @@ package command
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
+	"path"
 	"strings"
 
 	"github.com/manifoldco/promptui"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
-const (
-	// ConfigFile is the filename we give
-	ConfigFile string = "config.yaml"
-	// HiddenDir is our hidden directory name inside $HOME
-	HiddenDir string = ".backup-genie"
-)
-
-// Input is the allowed type...
-type Input struct {
-	Location string
-	config   []byte
-}
-
-// Config is the object we write to `config.yaml`
-type Config struct {
-	location     string
-	lastModified uint64
-	dbshasum     string
-}
-
-// Reader is a generic interface to read our file.
+// Reader is a generic interface to read our config file.
 type Reader interface {
 	readFile() []byte
 }
 
 // readFile for Input struct
-func (i *Input) readFile() []byte {
-	content, err := ioutil.ReadFile(i.Location)
+func (c *Config) readFile() []byte {
+	content, err := ioutil.ReadFile(c.location)
 	if err != nil {
-		log.Fatal(err)
+		zap.S().Fatal(err)
 	}
 
-	log.Debugf("File contents: %s", content)
+	zap.S().Debugf("File contents: %s", content)
 	return content
 }
 
+// NewLocation will write the location path to configS
+func (c *Config) NewLocation(location string) {
+	c.location = location
+}
+
 // RunInit will take care of stuff
-func (i *Input) RunInit() error {
+func (c *Config) RunInit() error {
 
 	// Early exit of RunInit if we want to use config found in $HOME
 	configExistsHome := CheckHome()
@@ -59,61 +44,41 @@ func (i *Input) RunInit() error {
 		useHome, err := promptHome.Run()
 
 		if err != nil {
-			log.Errorf("Prompt for home check failed %v\n", err)
+			zap.S().Errorf("Prompt for home check failed %v\n", err)
 			return err
 		}
 
-		log.Infof("Using home? %b", useHome)
+		zap.S().Infof("Using home? %b", useHome)
 
 		if strings.ToLower(useHome) == "y" {
 			return nil
 		}
 	}
 
-	// Early exit of RunInit if we find config in current working directory
+	// TODO: Early exit of RunInit if we find config in current working directory
 
 	prompt := promptui.Prompt{
-		Label: "Enter the location of the datastore (leave blank for current working directory): ",
+		Label: "Enter the directory of the datastore (leave blank for current working directory): ",
 	}
 
 	location, err := prompt.Run()
+	// TODO: Add more path validation around location? - for now just run path.Clean
+	cleanLocation := path.Clean(location)
+
+	c.location = fmt.Sprintf("%s/%s", cleanLocation, DbFile)
 
 	if err != nil {
-		log.Errorf("Prompt failed %v\n", err)
+		zap.S().Errorf("Prompt failed %v\n", err)
 		return err
 	}
 
-	i.Location = fmt.Sprintf("%s", location)
-
-	log.Info(i) // should point to i with the value of the input
-	err = i.writeConfig()
+	zap.S().Debugf("%v", c) // should point to config with the value of the input
+	err = c.writeConfig()
 	if err != nil {
-		log.Errorf("Could not write to location %s\n", i.Location)
+		zap.S().Errorf("Could not write to location %s\n", c.location)
 		return err
 	}
 
 	return nil
 
-}
-
-// writeConfig will
-func (i *Input) writeConfig() error {
-	// check if config already exists
-	filePerms := os.FileMode(06660) // default ug+rw, a+r
-	i.genYaml()
-	ioutil.WriteFile("config.yaml", i.config, filePerms)
-	return nil
-}
-
-// genYaml creates the config as a []byte type
-func (i *Input) genYaml() {
-	data := fmt.Sprintf("location: %s\n", i.Location)
-	log.Debug(data)
-	// very simple yaml syntax, no need to overcomplicate it.
-	// err := yaml.Unmarshal([]byte(data), &t)
-	// if err != nil {
-	// 	log.Error("could not unmarshal data to yaml")
-	// 	log.Error(err)
-	// }
-	i.config = []byte(data)
 }
