@@ -42,6 +42,12 @@ func main() {
 		AddCommand(
 			opts.New(&Init{}),
 		).
+		AddCommand(
+			opts.New(&Check{}),
+		).
+		AddCommand(
+			opts.New(&Scan{}),
+		).
 		Complete().
 		Version(version).
 		Parse().
@@ -52,6 +58,16 @@ func main() {
 		zap.S().Infof("hello")
 	}
 
+}
+
+// Check is a placeholder...
+type Check struct {
+	Location string
+}
+
+// Run check - comprende?
+func (c *Check) Run() {
+	zap.S().Infof("Running the check against %s", c.Location)
 }
 
 // Init does things to initialise the configuration
@@ -84,4 +100,14 @@ func (f *Init) Run() {
 	if err != nil {
 		zap.S().Errorf("Not able to init - exiting because: %v", err)
 	}
+}
+
+// Scan type for looking through a new directory structure.
+type Scan struct {
+	Location string
+	ScanDir  string
+}
+
+func (s *Scan) Run() {
+	zap.S().Infof("Running the scan against %s with config in location %s", s.ScanDir, s.Location)
 }

@@ -2,7 +2,19 @@
 
 Backup Genie is a simple Open Source command line tool which uses an sqlite
 datasource to check all files in a particular directory and see if there exists
-a file somewhere else on your system.
+a file somewhere else on your system which is stored in the backup
+
+## Nomenclature
+
+'target' is the place we're looking for to see new files or changes to files.
+'backup' is the place which stores the `config.yaml` in the root
+
+## Commands
+
+`backup-genie init` - initialises a backup location
+`backup-genie scan` - scan the backup location for changes to files
+`backup-genie sync` - sync the target location with the the backup location
+`backup-genie check` - check a target location against the backup for duplicate files
 
 ## User Flow
 

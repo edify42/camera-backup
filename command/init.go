@@ -26,9 +26,19 @@ func (c *Config) readFile() []byte {
 	return content
 }
 
-// NewLocation will write the location path to configS
+// NewLocation will write the location path to config
 func (c *Config) NewLocation(location string) {
 	c.location = location
+}
+
+// AddInclude for the files we want to include
+func (c *Config) AddInclude(include string) {
+	c.include = include
+}
+
+// AddExclude for the files we want to ignore
+func (c *Config) AddExclude(exclude string) {
+	c.exclude = exclude
 }
 
 // RunInit will take care of stuff
