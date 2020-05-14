@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/edify42/temp-golang/command"
+	"github.com/edify42/camera-backup/check"
+	"github.com/edify42/camera-backup/command"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -62,12 +63,15 @@ func main() {
 
 // Check is a placeholder...
 type Check struct {
-	Location string
+	Location string `opts:"help=location of the config.yaml file,default=."`
+	ScanDir  string `opts:"help=target check directory,default=/tmp"`
 }
 
 // Run check - comprende?
 func (c *Check) Run() {
-	zap.S().Infof("Running the check against %s", c.Location)
+	var config check.Config
+	config.New(c.ScanDir)
+	zap.S().Infof("Running the check against %s", config.ScanDir)
 }
 
 // Init does things to initialise the configuration
@@ -104,8 +108,8 @@ func (f *Init) Run() {
 
 // Scan type for looking through a new directory structure.
 type Scan struct {
-	Location string
-	ScanDir  string
+	Location string `opts:"help=location of the config.yaml file,default=."`
+	ScanDir  string `opts:"help=target scan directory,default=/tmp"`
 }
 
 func (s *Scan) Run() {

@@ -60,3 +60,5 @@ The `config.yaml` file stores the location of the database used to
 
 Remote backup to cloud storage (paid).
 Could be useful (backblaze)[https://github.com/kothar/go-backblaze]
+Organise would be amazing if we could cleverly group or label photos in some
+way.

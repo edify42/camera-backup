@@ -1,11 +1,9 @@
-module github.com/edify42/temp-golang
+module github.com/edify42/camera-backup
 
 go 1.14
 
 require (
-	github.com/jpillora/opts v1.1.2
+	github.com/jpillora/opts v1.1.2 // indirect
 	github.com/manifoldco/promptui v0.7.0
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	go.uber.org/zap v1.14.1
-	gopkg.in/yaml.v2 v2.2.8
+	go.uber.org/zap v1.15.0
 )
