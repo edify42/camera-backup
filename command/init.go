@@ -63,6 +63,7 @@ func (c *Config) RunInit() error {
 		if strings.ToLower(useHome) == "y" {
 			return nil
 		}
+
 	}
 
 	// TODO: Early exit of RunInit if we find config in current working directory
@@ -75,7 +76,7 @@ func (c *Config) RunInit() error {
 	// TODO: Add more path validation around location? - for now just run path.Clean
 	cleanLocation := path.Clean(location)
 
-	c.location = fmt.Sprintf("%s/%s", cleanLocation, DbFile)
+	c.location = fmt.Sprintf("%s", cleanLocation)
 
 	if err != nil {
 		zap.S().Errorf("Prompt failed %v\n", err)
@@ -88,6 +89,9 @@ func (c *Config) RunInit() error {
 		zap.S().Errorf("Could not write to location %s\n", c.location)
 		return err
 	}
+
+	// Attempt to create the database after the config is initialised
+	c.CreateDB()
 
 	return nil
 

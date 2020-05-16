@@ -1,3 +1,6 @@
 
 ## Repo specific gitignore files
 config.yaml
+sqlstore.db
+
+scratch

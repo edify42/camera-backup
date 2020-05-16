@@ -54,7 +54,10 @@ Otherwise, it will prompt you to run the init command.
 
 ### Config file
 
-The `config.yaml` file stores the location of the database used to 
+The `config.yaml` file stores the location of the backup (and also the
+sqlstore.db file). You can manage all your config files in one location
+(can be different from where the sqlstore.db file is kept). We'll **always**
+keep the sqlstore.db file with the targetted backup location though.
 
 ## Future Features
 

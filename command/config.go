@@ -23,7 +23,7 @@ const (
 type Config struct {
 	exclude      string
 	include      string
-	location     string
+	location     string	"fully qualified path of where the backup location is"
 	lastModified uint64
 	dbshasum     string
 	config       []byte
@@ -42,7 +42,8 @@ func (c *Config) genYaml() {
 	data := fmt.Sprintf(
 		`location: %s
 lastModifiedDBStore: %s
-\n`, c.location, "never")
+`,
+c.location, "never")
 	zap.S().Debug(data)
 	// very simple yaml syntax, no need to overcomplicate it.
 	// err := yaml.Unmarshal([]byte(data), &t)
