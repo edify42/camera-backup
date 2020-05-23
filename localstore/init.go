@@ -1,16 +1,38 @@
-package command
+package localstore
 
 import (
 	"os"
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3" // coment
+	"github.com/edify42/camera-backup/config"
 	"go.uber.org/zap"
 )
 
+// Config is the SQL DB Config object
+type Config struct {
+	location string
+}
+
+// SQLInit does stuff to initialise our code...
+type SQLInit interface {
+	CreateDB()
+}
+
+// NewLocalStore will create stuff...
+func NewLocalStore(location string) Config {
+	return Config{location}
+}
+
+// InitDB will be exposed externally for all to use!
+func InitDB(i SQLInit) error {
+	i.CreateDB()
+	return nil
+}
+
 // CreateDB will simply touch the database file to ensure we can write to it.
-func (c *Config)CreateDB() error {
-	database := fmt.Sprintf("%s/%s", c.location, DbFile)
+func (c *Config) CreateDB() error {
+	database := fmt.Sprintf("%s/%s", c.location, config.DbFile)
 	zap.S().Infof("Creating the data store file at: %s", database)
 	os.MkdirAll(c.location, 0755)
 	os.Create(database)

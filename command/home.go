@@ -3,7 +3,8 @@ package command
 import (
 	"fmt"
 	"os"
-
+	
+	"github.com/edify42/camera-backup/config"
 	"go.uber.org/zap"
 )
 
@@ -16,13 +17,13 @@ func CheckHome() string {
 	}
 	// TODO: regex to strip trailing slash in $HOME if exists.
 	// create the directory in home
-	location := fmt.Sprintf("%s/%s", home, HiddenDir)
+	location := fmt.Sprintf("%s/%s", home, config.HiddenDir)
 	err := os.Mkdir(location, 0700)
 
 	if err != nil && err.Error() != fmt.Sprintf("mkdir %s: file exists", location) {
 		zap.S().Infof("Could not create file in %s; %v", location, err.Error())
 	}
-	file := fmt.Sprintf("%s/%s", location, ConfigFile)
+	file := fmt.Sprintf("%s/%s", location, config.ConfigFile)
 	zap.S().Infof("Checking for %s", file)
 	if _, err := os.Stat(file); !os.IsNotExist(err) {
 		return location

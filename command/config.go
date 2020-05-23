@@ -5,27 +5,17 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/edify42/camera-backup/config"
 	"go.uber.org/zap"
-)
-
-const (
-	// ConfigFile is the filename we give which stores assets for how our app runs.
-	ConfigFile string = "config.yaml"
-
-	// DbFile is the local sql store of our file backups
-	DbFile string = "sqlstore.db"
-
-	// HiddenDir is our hidden directory name inside $HOME
-	HiddenDir string = ".backup-genie"
 )
 
 // Config is the object we write to `config.yaml`
 type Config struct {
-	exclude      string
-	include      string
-	location     string	"fully qualified path of where the backup location is"
-	lastModified uint64
-	dbshasum     string
+	exclude      string `help:"regex of anything that we do not want to search/backup"`
+	include      string `help:"regex of anything we DO want to search/backup"`
+	location     string `help:"fully qualified path of where the backup location is"`
+	lastModified uint64 `help:"last write to the datastore. should match file metadata"` // TODO: write a functional test for this
+	dbshasum     string `help:"sha1sum of the datastore"`                                // TODO: write a test for this
 	config       []byte
 }
 
@@ -33,7 +23,7 @@ type Config struct {
 func (c *Config) writeConfig() error {
 	filePerms := os.FileMode(06660) // default ug+rw, a+r
 	c.genYaml()
-	ioutil.WriteFile(ConfigFile, c.config, filePerms)
+	ioutil.WriteFile(config.ConfigFile, c.config, filePerms)
 	return nil
 }
 
@@ -43,7 +33,7 @@ func (c *Config) genYaml() {
 		`location: %s
 lastModifiedDBStore: %s
 `,
-c.location, "never")
+		c.location, "never")
 	zap.S().Debug(data)
 	// very simple yaml syntax, no need to overcomplicate it.
 	// err := yaml.Unmarshal([]byte(data), &t)

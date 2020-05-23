@@ -17,5 +17,5 @@ type Connection struct {
 }
 
 func (c *Connection) createConn() error {
-
+	return nil
 }
