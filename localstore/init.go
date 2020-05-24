@@ -87,10 +87,11 @@ CREATE TABLE metadata (
 `
 	data string = `
 CREATE TABLE data (
-	filename	varchar(255),
-	filepath	varchar(255),
-	sha1sum		varchar(255),
-	lastCheckTimestamp	TIMESTAMP
+	filename	varchar(255) NOT NULL,
+	filepath	varchar(255) NOT NULL,
+	sha1sum		varchar(255) NOT NULL,
+	etag		varchar(255) NOT NULL,
+	lastCheckTimestamp	TIMESTAMP NOT NULL
 )
 `
 )

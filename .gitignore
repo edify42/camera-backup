@@ -4,3 +4,4 @@ config.yaml
 sqlstore.db
 
 scratch
+cp.out

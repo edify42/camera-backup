@@ -34,3 +34,5 @@ func (c *Config) UpdateMetadata(db *sql.DB) error {
 	}
 	return nil
 }
+
+// WriteFileRecord will write the file and associated metadata to the data table
