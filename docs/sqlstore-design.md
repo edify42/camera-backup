@@ -22,7 +22,9 @@ See the database screeeama.
 I did my development on my Ubuntu 18.04 PC and I used `sqlitebrowser` to
 debug the data in the local database.
 
-`sudo apt-get install sqlitebrowser`
+debian/ubuntu: `sudo apt-get install sqlitebrowser`
+
+Macos: `brew cask install db-browser-for-sqlite`
 
 I found it quite nice in that you could open up the table viewer with in a
 single bash statement `sqlitebrowser sqlstore.db`.

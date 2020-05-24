@@ -1,11 +1,12 @@
 package localstore
 
 import (
-	"os"
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3" // coment
+	"os"
+
 	"github.com/edify42/camera-backup/config"
+	_ "github.com/mattn/go-sqlite3" // coment
 	"go.uber.org/zap"
 )
 
@@ -44,12 +45,42 @@ func (c *Config) CreateDB() error {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE `metadata` (`name` INTEGER PRIMARY KEY AUTOINCREMENT)")
+	// metadata table definition
+	_, err = db.Exec(metadata)
 
 	if err != nil {
-		zap.S().Errorf("Could not metadata schema %v", err)
+		zap.S().Errorf("Could not load metadata schema %v", err)
+		return err
 	}
-	
+
+	// data table definition
+	_, err = db.Exec(data)
+	if err != nil {
+		zap.S().Errorf("Could not load data schema %v", err)
+		return err
+	}
+
 	// everything worked!
 	return nil
 }
+
+const (
+	// metadata table looks a bit like how we store things in the Config struct
+	metadata string = `
+CREATE TABLE metadata (
+	name 		varchar(30),
+	absolute	boolean,
+	location 	varchar(255),
+	exclude 	varchar(255),
+	include 	varchar(255)
+)
+`
+	data string = `
+CREATE TABLE data (
+	filename	varchar(255),
+	filepath	varchar(255),
+	sha1sum		varchar(255),
+	lastCheckTimestamp	varchar(50)
+)
+`
+)
