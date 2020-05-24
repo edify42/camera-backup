@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/manifoldco/promptui"
 	"github.com/edify42/camera-backup/localstore"
+	"github.com/manifoldco/promptui"
 	"go.uber.org/zap"
 )
 
@@ -93,7 +93,7 @@ func (c *Config) RunInit() error {
 
 	// Attempt to create the database after the config is initialised
 	sqlConf := localstore.NewLocalStore(c.location)
-	sqlConf.CreateDB()
+	_ = localstore.InitDB(sqlConf)
 
 	return nil
 

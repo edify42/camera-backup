@@ -15,48 +15,46 @@ type Config struct {
 	location string
 }
 
-// SQLInit does stuff to initialise our code...
-type SQLInit interface {
-	CreateDB()
-}
-
 // NewLocalStore will create stuff...
-func NewLocalStore(location string) Config {
-	return Config{location}
+func NewLocalStore(location string) *Config {
+	return &Config{location}
 }
 
-// InitDB will be exposed externally for all to use!
-func InitDB(i SQLInit) error {
-	i.CreateDB()
-	return nil
-}
-
-// CreateDB will simply touch the database file to ensure we can write to it.
-func (c *Config) CreateDB() error {
-	database := fmt.Sprintf("%s/%s", c.location, config.DbFile)
+// InitDB create the datastore file and run CreateDB
+func InitDB(i Sqlstore) error {
+	location := i.createConn()
+	database := fmt.Sprintf("%s/%s", location, config.DbFile)
 	zap.S().Infof("Creating the data store file at: %s", database)
-	os.MkdirAll(c.location, 0755)
+	os.MkdirAll(location, 0755) // `mkdir -p $location` #first
 	os.Create(database)
-
 	db, err := sql.Open("sqlite3", database)
-	defer db.Close()
 	if err != nil {
 		zap.S().Errorf("Could not create the database %v", err)
 		return err
 	}
+	defer db.Close()
+
+	err = i.CreateDB(db)
+	if err != nil {
+		zap.S().Errorf("Could not initialise the database within InitDB method %v", err)
+		return err
+	}
+	return nil
+}
+
+// CreateDB will bootstrap the datastore file with the schema
+func (c *Config) CreateDB(db *sql.DB) error {
 
 	// metadata table definition
-	_, err = db.Exec(metadata)
+	_, err := db.Exec(metadata)
 
 	if err != nil {
-		zap.S().Errorf("Could not load metadata schema %v", err)
 		return err
 	}
 
 	// data table definition
 	_, err = db.Exec(data)
 	if err != nil {
-		zap.S().Errorf("Could not load data schema %v", err)
 		return err
 	}
 
