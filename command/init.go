@@ -6,6 +6,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/edify42/camera-backup/filewalk"
+	_ "github.com/edify42/camera-backup/filewalk" // Heeyyy come one now
 	"github.com/edify42/camera-backup/localstore"
 	"github.com/manifoldco/promptui"
 	"go.uber.org/zap"
@@ -47,7 +49,7 @@ func (c *Config) RunInit() error {
 
 	// Early exit of RunInit if we want to use config found in $HOME
 	configExistsHome := CheckHome()
-	if configExistsHome != "" {
+	if configExistsHome == "Found" {
 		promptHome := promptui.Prompt{
 			Label:     "Config found in $HOME - use this instead of running init?",
 			IsConfirm: true,
@@ -94,6 +96,11 @@ func (c *Config) RunInit() error {
 	// Attempt to create the database after the config is initialised
 	sqlConf := localstore.NewLocalStore(c.location)
 	_ = localstore.InitDB(sqlConf)
+
+	// Try to run the filewalk...
+
+	walker := filewalk.NewWalker(c.location)
+	walker.Walker()
 
 	return nil
 

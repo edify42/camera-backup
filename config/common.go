@@ -4,7 +4,7 @@ package config
 type Config struct {
 	exclude      string
 	include      string
-	location     string	"fully qualified path of where the backup location is"
+	location     string `help:"fully qualified path of where the backup location is"`
 	lastModified uint64
 	dbshasum     string
 	config       []byte

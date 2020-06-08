@@ -1,15 +1,18 @@
 package command
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
-func TestCheckHome(t *testing.T) {
+func TestAccCheckHome(t *testing.T) {
 	tests := []struct {
 		name string
 		want string
 	}{
 		{
-			name: "Successful testing",
-			want: "",
+			name: "Successful testing with no config in $HOME",
+			want: "No config found in $HOME",
 		},
 	}
 	for _, tt := range tests {
@@ -19,4 +22,14 @@ func TestCheckHome(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAccCheckHomeMissingEnv(t *testing.T) {
+	os.Setenv("HOME", "")
+	want := "No $HOME set"
+	t.Run("Missing $HOME directory in ENV", func(t *testing.T) {
+		if got := CheckHome(); got != want {
+			t.Errorf("CheckHome() = %v, want %s", got, want)
+		}
+	})
 }

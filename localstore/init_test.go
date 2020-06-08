@@ -55,3 +55,52 @@ func TestConfig_CreateDB(t *testing.T) {
 		})
 	}
 }
+
+// Positive test args
+type conf struct {
+	location string
+}
+
+func (c *conf) createConn() string {
+	return "yeah"
+}
+
+func (c *conf) testConn(db *sql.DB) bool {
+	return true
+}
+
+func (c *conf) CreateDB(db *sql.DB) error {
+	return nil
+}
+
+func (c *conf) UpdateMetadata(db *sql.DB) error {
+	return nil
+}
+
+func TestInitDB(t *testing.T) {
+	type args struct {
+		i Sqlstore
+	}
+
+	c := &conf{location: "nowhere"}
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Positive test",
+			args: args{
+				i: c,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := InitDB(tt.args.i); (err != nil) != tt.wantErr {
+				t.Errorf("InitDB() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

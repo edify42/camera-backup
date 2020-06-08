@@ -3,7 +3,8 @@ package command
 import (
 	"fmt"
 	"os"
-	
+	"path/filepath"
+
 	"github.com/edify42/camera-backup/config"
 	"go.uber.org/zap"
 )
@@ -13,20 +14,22 @@ func CheckHome() string {
 	home := os.Getenv("HOME")
 	if home == "" {
 		zap.S().Errorf("No value for $HOME found")
-		return ""
+		return "No $HOME set"
 	}
-	// TODO: regex to strip trailing slash in $HOME if exists.
-	// create the directory in home
+
+	// We always try to create a HiddenDir in $HOME
+	home = filepath.Clean(home)
 	location := fmt.Sprintf("%s/%s", home, config.HiddenDir)
 	err := os.Mkdir(location, 0700)
 
 	if err != nil && err.Error() != fmt.Sprintf("mkdir %s: file exists", location) {
-		zap.S().Infof("Could not create file in %s; %v", location, err.Error())
+		zap.S().Errorf("Could not create file in %s; %v", location, err.Error())
+		return fmt.Sprintf("Unable to create %s in $HOME", config.HiddenDir)
 	}
 	file := fmt.Sprintf("%s/%s", location, config.ConfigFile)
 	zap.S().Infof("Checking for %s", file)
 	if _, err := os.Stat(file); !os.IsNotExist(err) {
-		return location
+		return "Found" // Don't return location, this is known by convention.
 	}
-	return ""
+	return "No config found in $HOME"
 }
