@@ -59,6 +59,9 @@ sqlstore.db file). You can manage all your config files in one location
 (can be different from where the sqlstore.db file is kept). We'll **always**
 keep the sqlstore.db file with the targetted backup location though.
 
+**By design, we always drop** `config.yaml` **in the same location as where**
+`init` **is run**
+
 ## Future Features
 
 Remote backup to cloud storage (paid).

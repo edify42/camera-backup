@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -48,7 +47,12 @@ func (c *Config) AddExclude(exclude string) {
 func (c *Config) RunInit() error {
 
 	// Early exit of RunInit if we want to use config found in $HOME
-	configExistsHome := CheckHome()
+	var configExistsHome string
+	if c.dryRun {
+		configExistsHome = "dryRunMode"
+	} else {
+		configExistsHome = CheckHome()
+	}
 	if configExistsHome == "Found" {
 		promptHome := promptui.Prompt{
 			Label:     "Config found in $HOME - use this instead of running init?",
@@ -71,35 +75,41 @@ func (c *Config) RunInit() error {
 
 	// TODO: Early exit of RunInit if we find config in current working directory
 
-	prompt := promptui.Prompt{
-		Label: "Enter the directory of the datastore (leave blank for current working directory): ",
-	}
+	// Check location supplied by init parameter first
+	if len(c.location) > 0 {
+		c.location = path.Clean(c.location)
+	} else {
+		prompt := promptui.Prompt{
+			Label: "Enter the directory of the datastore (leave blank for current working directory): ",
+		}
 
-	location, err := prompt.Run()
-	// TODO: Add more path validation around location? - for now just run path.Clean
-	cleanLocation := path.Clean(location)
+		location, err := prompt.Run()
+		if err != nil {
+			zap.S().Errorf("Prompt failed %v\n", err)
+			return err
+		}
 
-	c.location = fmt.Sprintf("%s", cleanLocation)
-
-	if err != nil {
-		zap.S().Errorf("Prompt failed %v\n", err)
-		return err
+		c.location = path.Clean(location)
 	}
 
 	zap.S().Debugf("%v", c) // should point to config with the value of the input
-	err = c.writeConfig()
+	err := c.writeConfig()
 	if err != nil {
 		zap.S().Errorf("Could not write to location %s\n", c.location)
 		return err
 	}
 
+	// Early return for dry run
+	if c.dryRun {
+		return nil
+	}
 	// Attempt to create the database after the config is initialised
 	sqlConf := localstore.NewLocalStore(c.location)
 	_ = localstore.InitDB(sqlConf)
 
 	// Try to run the filewalk...
 
-	walker := filewalk.NewWalker(c.location)
+	walker := filewalk.NewWalker(c.location, c.exclude)
 	walker.Walker()
 
 	return nil

@@ -16,15 +16,24 @@ type Config struct {
 	location     string `help:"fully qualified path of where the backup location is"`
 	lastModified uint64 `help:"last write to the datastore. should match file metadata"` // TODO: write a functional test for this
 	dbshasum     string `help:"sha1sum of the datastore"`                                // TODO: write a test for this
+	dryRun       bool   `help:"enable dry run mode so nothing is actually created"`
 	config       []byte
 }
 
 // writeConfig will always write the ConfigFile to the current working directory.
 func (c *Config) writeConfig() error {
+	if c.dryRun {
+		return nil // early return for dry run
+	}
 	filePerms := os.FileMode(06660) // default ug+rw, a+r
 	c.genYaml()
 	ioutil.WriteFile(config.ConfigFile, c.config, filePerms)
 	return nil
+}
+
+// DryRun will prevent any of the config from actually running (testing purposes)
+func (c *Config) DryRun() {
+	c.dryRun = true
 }
 
 // genYaml creates the config as a []byte type
