@@ -76,9 +76,9 @@ func (c *Check) Run() {
 
 // Init does things to initialise the configuration
 type Init struct {
-	Location string `opts:"help=specify where the config.yaml file will be dropped"`
-	Include  string `opts:"help=specify which file extensions should be included,default=*"`
-	Exclude  string `opts:"help=exclude certain file extensions,default=nil"`
+	Location string   `opts:"help=specify where the config.yaml file will be dropped"`
+	Include  []string `opts:"help=specify which file extensions should be included,default=.*"`
+	Exclude  []string `opts:"help=exclude certain file extensions,default=nil"`
 }
 
 // Run will run init...yeah!
@@ -92,10 +92,14 @@ func (f *Init) Run() {
 	if len(f.Include) > 0 {
 		zap.S().Infof("Will look for files with extensions %s", f.Include)
 		config.AddInclude(f.Include)
+	} else {
+		defaultInclude := []string{".*"}
+		zap.S().Infof("Including all files by default %s", defaultInclude)
+		config.AddInclude(defaultInclude)
 	}
 
 	if len(f.Exclude) > 0 {
-		zap.S().Infof("Will exclude the following file extensions %s", f.Exclude)
+		zap.S().Infof("Will exclude the following file and path matches %s", f.Exclude)
 		config.AddExclude(f.Exclude)
 	}
 

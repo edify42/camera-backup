@@ -5,6 +5,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/edify42/camera-backup/config"
 	"github.com/edify42/camera-backup/filewalk"
 	_ "github.com/edify42/camera-backup/filewalk" // Heeyyy come one now
 	"github.com/edify42/camera-backup/localstore"
@@ -34,13 +35,15 @@ func (c *Config) NewLocation(location string) {
 }
 
 // AddInclude for the files we want to include
-func (c *Config) AddInclude(include string) {
+func (c *Config) AddInclude(include []string) {
 	c.include = include
 }
 
 // AddExclude for the files we want to ignore
-func (c *Config) AddExclude(exclude string) {
-	c.exclude = exclude
+func (c *Config) AddExclude(exclude []string) {
+	// default excludes list
+	excludes := append(exclude, config.DbFile)
+	c.exclude = excludes
 }
 
 // RunInit will take care of stuff
@@ -109,7 +112,7 @@ func (c *Config) RunInit() error {
 
 	// Try to run the filewalk...
 
-	walker := filewalk.NewWalker(c.location, c.exclude)
+	walker := filewalk.NewWalker(c.location, c.exclude, c.include)
 	walker.Walker()
 
 	return nil
