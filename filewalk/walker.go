@@ -35,13 +35,10 @@ func (w *WalkerConfig) Walker() ([]string, error) {
 	helper := &godirwalk.Options{
 		Callback: func(osPathname string, de *godirwalk.Dirent) error {
 			zap.S().Debugf("lets try match %s %s\n", w.Exclude, osPathname)
-			w.returnMatch(osPathname)
-			matched, err := regexp.MatchString(".*png", osPathname)
-			if err != nil {
-				return err
-			}
+
+			matched := w.returnMatch(osPathname)
 			if matched {
-				zap.S().Infof("we matched! %s\n", osPathname)
+				zap.S().Debugf("matched: %s\n", osPathname)
 				buff = append(buff, osPathname)
 			}
 			return nil
@@ -52,7 +49,7 @@ func (w *WalkerConfig) Walker() ([]string, error) {
 		Unsorted: true, // (optional) set true for faster yet non-deterministic enumeration (see godoc)
 	}
 	_ = godirwalk.Walk(w.Location, helper)
-	zap.S().Infof("all the things: %v", buff)
+	zap.S().Debugf("all the things: %v", buff)
 	return buff, nil
 }
 
@@ -60,13 +57,19 @@ func (w *WalkerConfig) Walker() ([]string, error) {
 // Exclude has higher priority (executed first)
 func (w *WalkerConfig) returnMatch(input string) bool {
 	for _, regex := range w.Exclude {
-		match, _ := regexp.MatchString(regex, input)
+		match, err := regexp.MatchString(regex, input)
+		if err != nil {
+			zap.S().Errorf("failed to execute exclude match for string %s - regex was: %s", input, regex)
+		}
 		if match {
 			return false
 		}
 	}
 	for _, regex := range w.Include {
-		match, _ := regexp.MatchString(regex, input)
+		match, err := regexp.MatchString(regex, input)
+		if err != nil {
+			zap.S().Errorf("failed to execute include match for string %s - regex was: %s", input, regex)
+		}
 		if match {
 			return true
 		}

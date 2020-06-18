@@ -5,3 +5,6 @@ sqlstore.db
 
 scratch
 cp.out
+
+## Environment
+.env

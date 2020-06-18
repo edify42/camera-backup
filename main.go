@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/edify42/camera-backup/check"
 	"github.com/edify42/camera-backup/command"
 	"go.uber.org/zap"
@@ -14,6 +16,11 @@ func initZapLog() *zap.Logger {
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	config.EncoderConfig.TimeKey = "timestamp"
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	logLevel := os.Getenv("LOG_LEVEL") // if nil/empty, INFO log level is used by zap by default.
+	lvl := zap.NewAtomicLevel()
+	lvl.UnmarshalText([]byte(logLevel))
+	config.Level = lvl
 	logger, _ := config.Build()
 	return logger
 }

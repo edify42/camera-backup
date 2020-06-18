@@ -1,6 +1,10 @@
 package filewalk
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/edify42/camera-backup/config"
+)
 
 func TestWalkerConfig_returnMatch(t *testing.T) {
 	type fields struct {
@@ -25,6 +29,50 @@ func TestWalkerConfig_returnMatch(t *testing.T) {
 			},
 			args: args{
 				input: "basic-test-case",
+			},
+			want: true,
+		},
+		{
+			name: "exclude all",
+			fields: fields{
+				Exclude: []string{".*"},
+				Include: []string{".*"},
+			},
+			args: args{
+				input: "basic-test-case",
+			},
+			want: false,
+		},
+		{
+			name: "exclude sqlstore.db",
+			fields: fields{
+				Exclude: []string{config.DbFile},
+				Include: []string{".*"},
+			},
+			args: args{
+				input: config.DbFile,
+			},
+			want: false,
+		},
+		{
+			name: "exclude path match",
+			fields: fields{
+				Exclude: []string{"/home/test/.*"},
+				Include: []string{".*"},
+			},
+			args: args{
+				input: "/home/test/my/file.test",
+			},
+			want: false,
+		},
+		{
+			name: "include path match",
+			fields: fields{
+				Exclude: []string{"*.png"},
+				Include: []string{"/home/hello/.*"},
+			},
+			args: args{
+				input: "/home/hello/newfile.jpg",
 			},
 			want: true,
 		},
