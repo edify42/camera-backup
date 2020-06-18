@@ -30,7 +30,7 @@ func NewWalker(location string, exclude, include []string) *WalkerConfig {
 
 // Walker will return your files. It's responsible for filtering the files based on
 // Include and Exclude.
-func (w *WalkerConfig) Walker() ([]string, error) {
+func (w *WalkerConfig) Walker(fh Handler) ([]string, error) {
 	var buff []string
 	helper := &godirwalk.Options{
 		Callback: func(osPathname string, de *godirwalk.Dirent) error {

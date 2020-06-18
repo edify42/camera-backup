@@ -111,9 +111,11 @@ func (c *Config) RunInit() error {
 	_ = localstore.InitDB(sqlConf)
 
 	// Try to run the filewalk...
-
+	handler := filewalk.Handle{}
 	walker := filewalk.NewWalker(c.location, c.exclude, c.include)
-	walker.Walker()
+	array, err := walker.Walker(&handler)
+
+	zap.S().Debugf("init method returned %v", array)
 
 	return nil
 
