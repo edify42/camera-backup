@@ -57,6 +57,19 @@ func (w *WalkerConfig) Walker() ([]string, error) {
 }
 
 // returnMatch will check the Include and Exclude options
-func (w *WalkerConfig) returnMatch(file string) {
-	return
+// Exclude has higher priority (executed first)
+func (w *WalkerConfig) returnMatch(input string) bool {
+	for _, regex := range w.Exclude {
+		match, _ := regexp.MatchString(regex, input)
+		if match {
+			return false
+		}
+	}
+	for _, regex := range w.Include {
+		match, _ := regexp.MatchString(regex, input)
+		if match {
+			return true
+		}
+	}
+	return false
 }
