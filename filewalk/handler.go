@@ -1,8 +1,16 @@
 package filewalk
 
+import (
+	"crypto/md5"
+	"fmt"
+	"io/ioutil"
+)
+
 // Handler is my best fwiend
 type Handler interface {
-	md5() string
+	md5([]byte) string
+	etag([]byte) string
+	loadFile(string) []byte
 }
 
 // Handle struct...
@@ -13,6 +21,26 @@ func NewHandler() *Handle {
 	return &Handle{}
 }
 
-func (h *Handle) md5() string {
-	return ""
+func (h *Handle) md5(data []byte) string {
+	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+// TODO: finish this off...
+func (h *Handle) etag(data []byte) string {
+	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+// Required function to actually do the work of reading a file.
+func (h *Handle) loadFile(file string) []byte {
+	dat, err := ioutil.ReadFile(file)
+	check(err)
+	fmt.Print(string(dat))
+	return dat
+}
+
+// copied from gobyexample.com docs!
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
