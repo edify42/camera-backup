@@ -35,10 +35,16 @@ func (w *WalkerConfig) Walker(fh Handler) ([]string, error) {
 	helper := &godirwalk.Options{
 		Callback: func(osPathname string, de *godirwalk.Dirent) error {
 			zap.S().Debugf("lets try match %s %s\n", w.Exclude, osPathname)
+			if de.IsDir() {
+				return nil
+			}
 
 			matched := w.returnMatch(osPathname)
 			if matched {
 				zap.S().Debugf("matched: %s\n", osPathname)
+				file := fh.loadFile(osPathname)
+				md5 := fh.md5(file)
+				zap.S().Debugf("md5sum of the file is %s", md5)
 				buff = append(buff, osPathname)
 			}
 			return nil

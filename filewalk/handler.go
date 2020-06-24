@@ -31,10 +31,10 @@ func (h *Handle) etag(data []byte) string {
 }
 
 // Required function to actually do the work of reading a file.
+// should not ever be mocked!
 func (h *Handle) loadFile(file string) []byte {
 	dat, err := ioutil.ReadFile(file)
 	check(err)
-	fmt.Print(string(dat))
 	return dat
 }
 
