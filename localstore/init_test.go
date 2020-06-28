@@ -9,7 +9,7 @@ import (
 )
 
 func TestConfig_CreateDB(t *testing.T) {
-	//
+	// mock the *sql.DB interface
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)

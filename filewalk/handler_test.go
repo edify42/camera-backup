@@ -1,6 +1,8 @@
 package filewalk
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestHandle_md5(t *testing.T) {
 	tests := []struct {
@@ -45,6 +47,30 @@ func TestHandle_md5(t *testing.T) {
 			h := &Handle{}
 			if got := h.md5(tt.input); got != tt.want {
 				t.Errorf("Handle.md5() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHandle_sha1sum(t *testing.T) {
+	tests := []struct {
+		name  string
+		h     *Handle
+		input []byte
+		want  string
+	}{
+		{
+			name:  "A test case for md5",
+			h:     &Handle{},
+			input: []byte("These pretzels are making me thirsty."),
+			want:  "7a0f82aac45ddc67ac3652f01fb5f731ec8f64a6",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := &Handle{}
+			if got := h.sha1sum(tt.input); got != tt.want {
+				t.Errorf("Handle.sha1sum() = %v, want %v", got, tt.want)
 			}
 		})
 	}

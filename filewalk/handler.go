@@ -2,15 +2,17 @@ package filewalk
 
 import (
 	"crypto/md5"
+	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
 )
 
 // Handler is my best fwiend
 type Handler interface {
-	md5([]byte) string
 	etag([]byte) string
 	loadFile(string) []byte
+	md5([]byte) string
+	sha1sum([]byte) string
 }
 
 // Handle struct...
@@ -19,6 +21,10 @@ type Handle struct{}
 // NewHandler returns a famous struct
 func NewHandler() *Handle {
 	return &Handle{}
+}
+
+func (h *Handle) sha1sum(data []byte) string {
+	return fmt.Sprintf("%x", sha1.Sum(data))
 }
 
 func (h *Handle) md5(data []byte) string {
