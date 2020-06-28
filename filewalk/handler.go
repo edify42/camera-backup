@@ -31,7 +31,6 @@ func (h *Handle) md5(data []byte) string {
 	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
-// TODO: finish this off...
 func (h *Handle) etag(data []byte) string {
 	// Always be splicing 8MB chucks
 	chunkSize := 8 * 1024 * 1024
