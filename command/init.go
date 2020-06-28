@@ -76,8 +76,6 @@ func (c *Config) RunInit() error {
 
 	}
 
-	// TODO: Early exit of RunInit if we find config in current working directory
-
 	// Check location supplied by init parameter first
 	if len(c.location) > 0 {
 		c.location = path.Clean(c.location)
@@ -116,7 +114,7 @@ func (c *Config) RunInit() error {
 	array, err := walker.Walker(&handler)
 
 	for _, fileObject := range array {
-		zap.S().Debugf("Something something %v", fileObject)
+		zap.S().Debugf("single record dump %v", fileObject)
 	}
 
 	return nil

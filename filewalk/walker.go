@@ -31,6 +31,7 @@ func NewWalker(location string, exclude, include []string) *WalkerConfig {
 // FileObject might be something we use.
 type FileObject struct {
 	name    string
+	path    string
 	md5     string
 	sha1sum string
 	etag    string
@@ -48,14 +49,13 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 	var fileObject FileObject
 	helper := &godirwalk.Options{
 		Callback: func(osPathname string, de *godirwalk.Dirent) error {
-			zap.S().Debugf("lets try match %s %s\n", w.Exclude, osPathname)
 			if de.IsDir() {
 				return nil
 			}
-
+			zap.S().Debugf("lets try match %s %s", w.Include, osPathname)
 			matched := w.returnMatch(osPathname)
 			if matched {
-				zap.S().Debugf("matched: %s\n", osPathname)
+				zap.S().Debugf("matched: %s", osPathname)
 				file := fh.loadFile(osPathname)
 				sha1sum := fh.sha1sum(file)
 				zap.S().Debugf("sha1sum of the file is %s", sha1sum) // TODO: make the logging better
@@ -63,7 +63,8 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 				zap.S().Debugf("md5sum of the file is %s", md5)
 				etag := fh.etag(file)
 				zap.S().Debugf("etag of the file is %s", etag)
-				fileObject.name = osPathname
+				fileObject.name = de.Name()
+				fileObject.path = osPathname // TODO: Clean this up?
 				fileObject.md5 = md5
 				fileObject.etag = etag
 				fileObject.sha1sum = sha1sum
@@ -78,7 +79,7 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 		Unsorted: true, // (optional) set true for faster yet non-deterministic enumeration (see godoc)
 	}
 	_ = godirwalk.Walk(w.Location, helper)
-	zap.S().Debugf("all the things: %v", buff)
+	zap.S().Debugf("all the files found are: %v", buff)
 	return returnObject, nil
 }
 

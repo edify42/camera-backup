@@ -98,6 +98,7 @@ func TestInitDB(t *testing.T) {
 			args: args{
 				i: c,
 			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
