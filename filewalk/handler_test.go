@@ -1,6 +1,7 @@
 package filewalk
 
 import (
+	"io/ioutil"
 	"testing"
 )
 
@@ -71,6 +72,39 @@ func TestHandle_sha1sum(t *testing.T) {
 			h := &Handle{}
 			if got := h.sha1sum(tt.input); got != tt.want {
 				t.Errorf("Handle.sha1sum() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHandle_etag(t *testing.T) {
+	// Local testing - to be removed and switched out with something more...testable...
+
+	dat, _ := ioutil.ReadFile("/home/ekim/Downloads/ZUKZ2Baseband1.70CN_2.5ST.zip")
+	tests := []struct {
+		name  string
+		h     *Handle
+		input []byte
+		want  string
+	}{
+		{
+			name:  "A test case for small file == md5sum",
+			h:     &Handle{},
+			input: []byte("These pretzels are making me thirsty."),
+			want:  "b0804ec967f48520697662a204f5fe72",
+		},
+		{
+			name:  "A test case for large file == etag",
+			h:     &Handle{},
+			input: dat,
+			want:  "f8a515f319f5b4967e5c0212224ca3b5-6",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := &Handle{}
+			if got := h.etag(tt.input); got != tt.want {
+				t.Errorf("Handle.etag() = %v, want %v", got, tt.want)
 			}
 		})
 	}

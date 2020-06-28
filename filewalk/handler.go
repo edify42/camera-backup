@@ -33,7 +33,21 @@ func (h *Handle) md5(data []byte) string {
 
 // TODO: finish this off...
 func (h *Handle) etag(data []byte) string {
-	return fmt.Sprintf("%x", md5.Sum(data))
+	// Always be splicing 8MB chucks
+	chunkSize := 8 * 1024 * 1024
+	if len(data) < chunkSize {
+		return fmt.Sprintf("%x", md5.Sum(data))
+	}
+
+	var md5s []byte
+	chunks := split(data, chunkSize)
+	for _, v := range chunks {
+		md5 := md5.Sum(v)
+		a := md5[:]
+		md5s = append(md5s, a...)
+	}
+	b := fmt.Sprintf("%x", md5.Sum(md5s))
+	return fmt.Sprintf("%s-%d", b, len(chunks))
 }
 
 // Required function to actually do the work of reading a file.
@@ -49,4 +63,18 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+// copied from https://gist.github.com/xlab/6e204ef96b4433a697b3
+func split(buf []byte, lim int) [][]byte {
+	var chunk []byte
+	chunks := make([][]byte, 0, len(buf)/lim+1)
+	for len(buf) >= lim {
+		chunk, buf = buf[:lim], buf[lim:]
+		chunks = append(chunks, chunk)
+	}
+	if len(buf) > 0 {
+		chunks = append(chunks, buf[:len(buf)])
+	}
+	return chunks
 }
