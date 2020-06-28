@@ -3,6 +3,8 @@ package localstore
 import (
 	"database/sql"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 // Sqlstore does stuff
@@ -11,6 +13,7 @@ type Sqlstore interface {
 	testConn(db *sql.DB) bool
 	CreateFile(string) error
 	CreateDB(db *sql.DB) error
+	GetSqliteDB(string) (*sql.DB, error)
 	UpdateMetadata(db *sql.DB) error
 }
 
@@ -38,6 +41,16 @@ func (c *Config) createConn() string {
 // testConn will check the database
 func (c *Config) testConn(db *sql.DB) bool {
 	return true
+}
+
+// GetSqliteDB returns the sql.DB object
+func (c *Config) GetSqliteDB(database string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", database)
+	if err != nil {
+		zap.S().Errorf("Could not open the database %v", err)
+		return nil, err
+	}
+	return db, nil
 }
 
 // UpdateMetadata will simply update the metadata table. Should only be called after write to table.

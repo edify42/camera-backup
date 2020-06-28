@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -96,7 +97,7 @@ func (c *Config) RunInit() error {
 	zap.S().Debugf("%v", c) // should point to config with the value of the input
 	err := c.writeConfig()
 	if err != nil {
-		zap.S().Errorf("Could not write to location %s\n", c.location)
+		zap.S().Errorf("Could not write to location %s", c.location)
 		return err
 	}
 
@@ -113,8 +114,27 @@ func (c *Config) RunInit() error {
 	walker := filewalk.NewWalker(c.location, c.exclude, c.include)
 	array, err := walker.Walker(&handler)
 
+	// Database stuff
+	database := fmt.Sprintf("%s/%s", c.location, config.DbFile)
+	db, err := sqlConf.GetSqliteDB(database)
+	if err != nil {
+		zap.S().Errorf("Error while getting database in init command: %s", c.location)
+		return err
+	}
+
 	for _, fileObject := range array {
 		zap.S().Debugf("single record dump %v", fileObject)
+		record := localstore.FileRecord{
+			Filename: fileObject.Name,
+			FilePath: fileObject.Path,
+			Sha1sum:  fileObject.Sha1sum,
+			Etag:     fileObject.Etag,
+		}
+		err := sqlConf.WriteFileRecord(record, db)
+		if err != nil {
+			zap.S().Errorf("Error while writing to the database in init command: %s", c.location)
+			return err
+		}
 	}
 
 	return nil

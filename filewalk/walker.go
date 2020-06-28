@@ -2,6 +2,7 @@ package filewalk
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/karrick/godirwalk"
 	"go.uber.org/zap"
@@ -30,11 +31,11 @@ func NewWalker(location string, exclude, include []string) *WalkerConfig {
 
 // FileObject might be something we use.
 type FileObject struct {
-	name    string
-	path    string
-	md5     string
-	sha1sum string
-	etag    string
+	Etag    string
+	Md5     string
+	Name    string
+	Path    string
+	Sha1sum string
 }
 
 // ReturnObject is a group of file objects
@@ -63,11 +64,11 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 				zap.S().Debugf("md5sum of the file is %s", md5)
 				etag := fh.etag(file)
 				zap.S().Debugf("etag of the file is %s", etag)
-				fileObject.name = de.Name()
-				fileObject.path = osPathname // TODO: Clean this up?
-				fileObject.md5 = md5
-				fileObject.etag = etag
-				fileObject.sha1sum = sha1sum
+				fileObject.Name = de.Name()
+				fileObject.Path = strings.TrimRight(osPathname, fileObject.Name) // :nice:
+				fileObject.Md5 = md5
+				fileObject.Etag = etag
+				fileObject.Sha1sum = sha1sum
 				buff = append(buff, osPathname)
 				returnObject = append(returnObject, fileObject)
 			}

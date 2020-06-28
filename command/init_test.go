@@ -27,7 +27,7 @@ func TestConfig_RunInit(t *testing.T) {
 			fields: fields{
 				exclude:  []string{},
 				include:  []string{},
-				location: "yeah",
+				location: "RunInitFunction",
 				dryRun:   true,
 			},
 			wantErr: false,

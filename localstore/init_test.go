@@ -81,6 +81,11 @@ func (c *conf) CreateFile(input string) error {
 	return nil
 }
 
+func (c *conf) GetSqliteDB(database string) (*sql.DB, error) {
+	db, _, _ := sqlmock.New()
+	return db, nil
+}
+
 func TestInitDB(t *testing.T) {
 	type args struct {
 		i Sqlstore

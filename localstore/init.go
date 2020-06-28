@@ -53,11 +53,7 @@ func InitDB(i Sqlstore) error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", database) // Might mock out this bit later into a separate function....Unsure why it works...
-	if err != nil {
-		zap.S().Errorf("Could not open the database %v", err)
-		return err
-	}
+	db, err := i.GetSqliteDB(database)
 	defer db.Close()
 
 	err = i.CreateDB(db)
