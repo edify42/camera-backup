@@ -115,7 +115,9 @@ func (c *Config) RunInit() error {
 	walker := filewalk.NewWalker(c.location, c.exclude, c.include)
 	array, err := walker.Walker(&handler)
 
-	zap.S().Debugf("init method returned %v", array)
+	for _, fileObject := range array {
+		zap.S().Debugf("Something something %v", fileObject)
+	}
 
 	return nil
 

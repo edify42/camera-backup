@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/edify42/camera-backup/config"
+	"github.com/edify42/camera-backup/localstore"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +29,7 @@ func CheckHome() string {
 	}
 	file := fmt.Sprintf("%s/%s", location, config.ConfigFile)
 	zap.S().Infof("Checking for %s", file)
-	if _, err := os.Stat(file); !os.IsNotExist(err) {
+	if localstore.CheckFileExists(file) {
 		return "Found" // Don't return location, this is known by convention.
 	}
 	return "No config found in $HOME"

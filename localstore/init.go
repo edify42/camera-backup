@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/edify42/camera-backup/config"
+	"github.com/manifoldco/promptui"
 	_ "github.com/mattn/go-sqlite3" // coment
 	"go.uber.org/zap"
 )
@@ -30,6 +31,21 @@ func InitDB(i Sqlstore) error {
 	database := fmt.Sprintf("%s/%s", location, config.DbFile)
 	zap.S().Infof("Creating the data store file at: %s", database)
 	os.MkdirAll(location, 0755) // `mkdir -p $location` #first
+	// Check if a current sqlstore exists
+	if CheckFileExists(database) {
+		prompt := promptui.Prompt{
+			Label: "Overwrite the existing sqlstore file (Y/n)? ",
+		}
+
+		answer, err := prompt.Run()
+		if err != nil {
+			zap.S().Errorf("Prompt failed %v\n", err)
+			return err
+		}
+		if answer == "n" {
+			return nil // early return
+		}
+	}
 	os.Create(database)
 	db, err := sql.Open("sqlite3", database)
 	if err != nil {
@@ -95,3 +111,11 @@ CREATE TABLE data (
 )
 `
 )
+
+// CheckFileExists is a reuseable function which returns true if a file exists at a known location
+func CheckFileExists(file string) bool {
+	if _, err := os.Stat(file); !os.IsNotExist(err) {
+		return true // Don't return location, this is known by convention.
+	}
+	return false
+}

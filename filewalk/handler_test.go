@@ -60,7 +60,7 @@ func TestHandle_sha1sum(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "A test case for md5",
+			name:  "A test case for sha1",
 			h:     &Handle{},
 			input: []byte("These pretzels are making me thirsty."),
 			want:  "7a0f82aac45ddc67ac3652f01fb5f731ec8f64a6",
