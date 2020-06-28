@@ -62,7 +62,7 @@ type conf struct {
 }
 
 func (c *conf) createConn() string {
-	return "yeah"
+	return "/tmp/no_location"
 }
 
 func (c *conf) testConn(db *sql.DB) bool {
@@ -77,12 +77,16 @@ func (c *conf) UpdateMetadata(db *sql.DB) error {
 	return nil
 }
 
+func (c *conf) CreateFile(input string) error {
+	return nil
+}
+
 func TestInitDB(t *testing.T) {
 	type args struct {
 		i Sqlstore
 	}
 
-	c := &conf{location: "nowhere"}
+	c := &conf{location: "aoeu"}
 
 	tests := []struct {
 		name    string

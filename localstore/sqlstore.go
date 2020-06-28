@@ -2,14 +2,25 @@ package localstore
 
 import (
 	"database/sql"
+	"os"
 )
 
 // Sqlstore does stuff
 type Sqlstore interface {
 	createConn() string
 	testConn(db *sql.DB) bool
+	CreateFile(string) error
 	CreateDB(db *sql.DB) error
 	UpdateMetadata(db *sql.DB) error
+}
+
+// CreateFile will create a blank file to disk
+func (c *Config) CreateFile(file string) error {
+	_, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // FileRecord Type is what we want to update/modify

@@ -46,10 +46,16 @@ func InitDB(i Sqlstore) error {
 			return nil // early return
 		}
 	}
-	os.Create(database)
+
+	err := i.CreateFile(database)
+	if err != nil {
+		zap.S().Errorf("Could not create the database file %v", err)
+		return err
+	}
+
 	db, err := sql.Open("sqlite3", database)
 	if err != nil {
-		zap.S().Errorf("Could not create the database %v", err)
+		zap.S().Errorf("Could not open the database %v", err)
 		return err
 	}
 	defer db.Close()
