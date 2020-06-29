@@ -2,6 +2,7 @@ package localstore
 
 import (
 	"database/sql"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -109,6 +110,63 @@ func TestConfig_UpdateMetadata(t *testing.T) {
 			}
 			if err := c.UpdateMetadata(tt.args.db); (err != nil) != tt.wantErr {
 				t.Errorf("Config.UpdateMetadata() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestConfig_ReadFileRecord(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	type fields struct {
+		location string
+		name     string
+	}
+	type args struct {
+		record FileRecord
+		db     *sql.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []StoredFileRecord
+		wantErr bool
+	}{
+		{
+			name: "First test case",
+			fields: fields{
+				location: "here",
+				name:     "there",
+			},
+			args: args{
+				record: FileRecord{},
+				db:     db,
+			},
+			want:    []StoredFileRecord{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		mock.ExpectExec("SELECT * FROM main.metadata").
+			WithArgs(tt.fields.name, tt.fields.location).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		mock.ExpectCommit()
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Config{
+				location: tt.fields.location,
+				name:     tt.fields.name,
+			}
+			got, err := c.ReadFileRecord(tt.args.record, tt.args.db)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Config.ReadFileRecord() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Config.ReadFileRecord() = %v, want %v", got, tt.want)
 			}
 		})
 	}

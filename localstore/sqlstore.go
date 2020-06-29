@@ -2,8 +2,10 @@ package localstore
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
+	"github.com/huandu/go-sqlbuilder"
 	"go.uber.org/zap"
 )
 
@@ -32,6 +34,12 @@ type FileRecord struct {
 	FilePath string
 	Sha1sum  string
 	Etag     string
+}
+
+// StoredFileRecord is the FileRecord which is stored in the database
+type StoredFileRecord struct {
+	FileRecord
+	id int
 }
 
 func (c *Config) createConn() string {
@@ -66,7 +74,7 @@ func (c *Config) UpdateMetadata(db *sql.DB) error {
 	return nil
 }
 
-// WriteFileRecord will write the file and associated metadata to the data table
+// WriteFileRecord will write the file info to the data table
 func (c *Config) WriteFileRecord(record FileRecord, db *sql.DB) error {
 	query := `
 	INSERT INTO main.data (filename, filepath, sha1sum, etag, lastCheckTimeStamp)
@@ -76,4 +84,28 @@ func (c *Config) WriteFileRecord(record FileRecord, db *sql.DB) error {
 		return err
 	}
 	return nil
+}
+
+// ReadFileRecord will return a set of results based on the input parameters
+func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileRecord, error) {
+	var result []StoredFileRecord
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("id", "name", sb.As("COUNT(*)", "c"))
+	sb.From("user")
+	sb.Where(sb.In("status", 1, 2, 5))
+	sb.Where(sb.In("Hello", "yeah"))
+	sql, args := sb.Build()
+	fmt.Println(sql)
+	fmt.Println(args)
+
+	query := `
+	SELECT * FROM main.data (filename, filepath, sha1sum, etag, lastCheckTimeStamp)
+	VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);`
+	resp, err := db.Exec(query, record.Filename, record.FilePath, record.Sha1sum, record.Etag)
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("%v", resp)
+	return result, nil
 }

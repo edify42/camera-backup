@@ -12,6 +12,8 @@ github.com/hashicorp/errwrap v1.0.0 h1:hLrqtEDnRye3+sgx6z4qVLNuviH3MR5aQ0ykNJa/U
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.0.0 h1:iVjPR7a6H0tWELX5NxNe7bYopibicUzc7uPribsnS6o=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
+github.com/huandu/go-sqlbuilder v1.7.0 h1:1HEgUJNI29Rv1YlvyautRD2bO5gF6qgGRXaF/7B4BiE=
+github.com/huandu/go-sqlbuilder v1.7.0/go.mod h1:cM38aLPrMXaGxsUkHFh1e2skthPnQRPK7h8//X5LQMc=
 github.com/jpillora/opts v1.1.2 h1:54/W0/fvo1DexHbL2utsW4rDhr5RXgojsPD2TA5oEzI=
 github.com/jpillora/opts v1.1.2/go.mod h1:7p7X/vlpKZmtaDFYKs956EujFqA6aCrOkcCaS6UBcR4=
 github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a h1:FaWFmfWdAUKbSCtOU2QjDaorUexogfaMgbipgYATUMU=
