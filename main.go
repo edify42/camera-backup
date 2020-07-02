@@ -71,14 +71,15 @@ func main() {
 // Check is a placeholder...
 type Check struct {
 	Location string `opts:"help=location of the config.yaml file,default=."`
-	ScanDir  string `opts:"help=target check directory,default=/tmp"`
+	// ScanDir  string `opts:"help=target check directory,default=/tmp"`
 }
 
 // Run check - comprende?
 func (c *Check) Run() {
 	var config check.Config
-	config.New(c.ScanDir)
-	zap.S().Infof("Running the check against %s", config.ScanDir)
+	config.New(c.Location)
+	zap.S().Infof("Running the check in %s", config.Location)
+	// config.LoadMetadata()
 }
 
 // Init does things to initialise the configuration
@@ -120,9 +121,9 @@ func (f *Init) Run() {
 // Scan type for looking through a new directory structure.
 type Scan struct {
 	Location string `opts:"help=location of the config.yaml file,default=."`
-	ScanDir  string `opts:"help=target scan directory,default=/tmp"`
+	// ScanDir  string `opts:"help=target scan directory,default=/tmp"`
 }
 
 func (s *Scan) Run() {
-	zap.S().Infof("Running the scan against %s with config in location %s", s.ScanDir, s.Location)
+	zap.S().Infof("Running the scan against %s with config in location %s", "yeah", s.Location)
 }

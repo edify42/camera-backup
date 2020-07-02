@@ -9,4 +9,10 @@ const (
 
 	// HiddenDir is our hidden directory name inside $HOME
 	HiddenDir string = ".backup-genie"
+
+	// DataTable is what is referenced in our sql queries.
+	DataTable string = "main.data"
+
+	// MetadataTable is where we store our search settings!
+	MetadataTable string = "main.metadata"
 )

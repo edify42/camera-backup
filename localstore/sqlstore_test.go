@@ -2,10 +2,12 @@ package localstore
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/edify42/camera-backup/config"
 )
 
 func TestConfig_WriteFileRecord(t *testing.T) {
@@ -143,18 +145,25 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 				name:     "there",
 			},
 			args: args{
-				record: FileRecord{},
-				db:     db,
+				record: FileRecord{
+					Filename: "1",
+					Etag:     "0",
+				},
+				db: db,
 			},
 			want:    []StoredFileRecord{},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
-		mock.ExpectExec("SELECT * FROM main.metadata").
-			WithArgs(tt.fields.name, tt.fields.location).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.ExpectCommit()
+		query := fmt.Sprintf("SELECT (.+) FROM %s WHERE etag IN (?) AND filename IN (?)", config.DataTable)
+		rows := sqlmock.NewRows([]string{"id", "title"}).
+			AddRow(1, "one").
+			AddRow(2, "two")
+		mock.ExpectQuery(query).
+			WillReturnRows(rows).
+			WithArgs(tt.args.record.Etag, tt.args.record.Filename)
+		// mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,

@@ -2,6 +2,7 @@ package command
 
 import (
 	"testing"
+	"time"
 
 	"github.com/edify42/camera-backup/config"
 	_ "github.com/edify42/camera-backup/filewalk"
@@ -56,7 +57,7 @@ func TestConfig_AddExclude(t *testing.T) {
 		exclude      []string
 		include      []string
 		location     string
-		lastModified uint64
+		lastModified time.Time
 		dbshasum     string
 		dryRun       bool
 		config       []byte

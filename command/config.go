@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/edify42/camera-backup/config"
 	"go.uber.org/zap"
@@ -11,12 +12,12 @@ import (
 
 // Config is the object we write to `config.yaml`
 type Config struct {
-	exclude      []string `help:"regex of anything that we do not want to search/backup"`
-	include      []string `help:"regex of anything we DO want to search/backup"`
-	location     string   `help:"fully qualified path of where the backup location is"`
-	lastModified uint64   `help:"last write to the datastore. should match file metadata"` // TODO: write a functional test for this
-	dbshasum     string   `help:"sha1sum of the datastore"`                                // TODO: write a test for this
-	dryRun       bool     `help:"enable dry run mode so nothing is actually created"`
+	exclude      []string  `help:"regex of anything that we do not want to search/backup"`
+	include      []string  `help:"regex of anything we DO want to search/backup"`
+	location     string    `help:"fully qualified path of where the backup location is"`
+	lastModified time.Time `help:"last write to the datastore. should match file metadata"` // TODO: write a functional test for this
+	dbshasum     string    `help:"sha1sum of the datastore"`                                // TODO: write a test for this
+	dryRun       bool      `help:"enable dry run mode so nothing is actually created"`
 	config       []byte
 }
 
