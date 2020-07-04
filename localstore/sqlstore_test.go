@@ -197,6 +197,7 @@ func TestConfig_ReadMetadata(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
+		want    Metadata
 		wantErr bool
 	}{
 		{
@@ -208,24 +209,28 @@ func TestConfig_ReadMetadata(t *testing.T) {
 			args: args{
 				db: db,
 			},
+			want:    Metadata{},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		query := fmt.Sprintf(`SELECT \* FROM %s WHERE id IN \(\?\)`, config.MetadataTable)
-		rows := sqlmock.NewRows([]string{"id", "filename"}).
-			AddRow(1, "one")
+		rows := sqlmock.NewRows([]string{"id", "filename"})
 		mock.ExpectQuery(query).
 			WillReturnRows(rows).
 			WithArgs(1)
-		mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,
 				name:     tt.fields.name,
 			}
-			if err := c.ReadMetadata(tt.args.db); (err != nil) != tt.wantErr {
+			got, err := c.ReadMetadata(tt.args.db)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.ReadMetadata() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Config.ReadMetadata() = %v, want %v", got, tt.want)
 			}
 		})
 	}

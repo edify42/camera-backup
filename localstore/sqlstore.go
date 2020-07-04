@@ -87,7 +87,7 @@ func (c *Config) UpdateMetadata(db *sql.DB) error {
 }
 
 // ReadMetadata returns the metadata from the table
-func (c *Config) ReadMetadata(db *sql.DB) error {
+func (c *Config) ReadMetadata(db *sql.DB) (Metadata, error) {
 
 	var r Metadata
 	sb := sqlbuilder.NewSelectBuilder()
@@ -97,22 +97,20 @@ func (c *Config) ReadMetadata(db *sql.DB) error {
 	sql, args := sb.Build()
 	resp, err := db.Query(sql, args...)
 	if err != nil {
-		return err
+		return Metadata{}, err
 	}
 	defer resp.Close()
 	if resp.Next() {
-		fmt.Print("oh hai\n")
-	}
-
-	err = resp.Scan(&r.id, &r.name, &r.location, &r.lastModified, &r.absolute, &r.exclude, &r.include)
-	if err != nil {
-		zap.S().Fatal(err)
-		return err
+		err = resp.Scan(&r.id, &r.name, &r.location, &r.lastModified, &r.absolute, &r.exclude, &r.include)
+		if err != nil {
+			zap.S().Fatal(err)
+			return Metadata{}, err
+		}
 	}
 
 	fmt.Printf("hey hey hey: %v", r)
 
-	return nil
+	return r, nil
 }
 
 // WriteFileRecord will write the file info to the data table
@@ -163,6 +161,6 @@ func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) (StoredFileRecord
 		resp.Scan(&result.ID, &result.Filename, &result.FilePath, &result.Etag, &result.Sha1sum)
 	}
 
-	fmt.Printf("%v", resp)
+	// fmt.Printf("%v", resp)
 	return result, nil
 }

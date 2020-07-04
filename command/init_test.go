@@ -13,7 +13,7 @@ func TestConfig_RunInit(t *testing.T) {
 		exclude      []string
 		include      []string
 		location     string
-		lastModified uint64
+		lastModified time.Time
 		dbshasum     string
 		dryRun       bool
 		config       []byte
