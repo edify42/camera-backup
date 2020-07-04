@@ -94,7 +94,6 @@ func (c *Config) ReadMetadata(db *sql.DB) error {
 	sb.From(config.MetadataTable)
 	sb.Where(sb.In("id", 1))
 	sql, args := sb.Build()
-	fmt.Print(sql)
 	resp, err := db.Query(sql, args...)
 	if err != nil {
 		return err

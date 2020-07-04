@@ -156,14 +156,14 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		query := fmt.Sprintf("SELECT (.+) FROM %s WHERE etag IN (?) AND filename IN (?)", config.DataTable)
+		query := fmt.Sprintf(`SELECT \* FROM %s WHERE etag IN \(\?\) AND filename IN \(\?\)`, config.DataTable)
 		rows := sqlmock.NewRows([]string{"id", "title"}).
 			AddRow(1, "one").
 			AddRow(2, "two")
 		mock.ExpectQuery(query).
 			WillReturnRows(rows).
 			WithArgs(tt.args.record.Etag, tt.args.record.Filename)
-		// mock.ExpectCommit()
+		mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,
@@ -176,6 +176,35 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Config.ReadFileRecord() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestConfig_ReadMetadata(t *testing.T) {
+	type fields struct {
+		location string
+		name     string
+	}
+	type args struct {
+		db *sql.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Config{
+				location: tt.fields.location,
+				name:     tt.fields.name,
+			}
+			if err := c.ReadMetadata(tt.args.db); (err != nil) != tt.wantErr {
+				t.Errorf("Config.ReadMetadata() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
