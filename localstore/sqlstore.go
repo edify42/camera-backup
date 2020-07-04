@@ -40,9 +40,10 @@ type FileRecord struct {
 // StoredFileRecord is the FileRecord which is stored in the database
 type StoredFileRecord struct {
 	FileRecord
-	id int
+	ID int
 }
 
+// Metadata stores the returned metadata from the sqlstore
 type Metadata struct {
 	id           int
 	name         string
@@ -127,8 +128,8 @@ func (c *Config) WriteFileRecord(record FileRecord, db *sql.DB) error {
 }
 
 // ReadFileRecord will return a set of results based on the input parameters
-func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileRecord, error) {
-	var result []StoredFileRecord
+func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) (StoredFileRecord, error) {
+	var result StoredFileRecord
 	sb := sqlbuilder.NewSelectBuilder()
 	sb.Select("*")
 	sb.From(config.DataTable)
@@ -155,8 +156,13 @@ func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileReco
 	resp, err := db.Query(sql, args...)
 
 	if err != nil {
-		return nil, err
+		return StoredFileRecord{}, err
 	}
+
+	if resp.Next() {
+		resp.Scan(&result.ID, &result.Filename, &result.FilePath, &result.Etag, &result.Sha1sum)
+	}
+
 	fmt.Printf("%v", resp)
 	return result, nil
 }

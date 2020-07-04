@@ -135,7 +135,7 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    []StoredFileRecord
+		want    StoredFileRecord
 		wantErr bool
 	}{
 		{
@@ -151,19 +151,18 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 				},
 				db: db,
 			},
-			want:    []StoredFileRecord{},
+			want:    StoredFileRecord{},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		query := fmt.Sprintf(`SELECT \* FROM %s WHERE etag IN \(\?\) AND filename IN \(\?\)`, config.DataTable)
-		rows := sqlmock.NewRows([]string{"id", "title"}).
+		rows := sqlmock.NewRows([]string{"id", "filename"}).
 			AddRow(1, "one").
 			AddRow(2, "two")
 		mock.ExpectQuery(query).
 			WillReturnRows(rows).
 			WithArgs(tt.args.record.Etag, tt.args.record.Filename)
-		mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,
@@ -182,6 +181,11 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 }
 
 func TestConfig_ReadMetadata(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
 	type fields struct {
 		location string
 		name     string
@@ -195,9 +199,26 @@ func TestConfig_ReadMetadata(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Positive test case to read Metadata",
+			fields: fields{
+				location: "a location",
+				name:     "something that i can delete?",
+			},
+			args: args{
+				db: db,
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
+		query := fmt.Sprintf(`SELECT \* FROM %s WHERE id IN \(\?\)`, config.MetadataTable)
+		rows := sqlmock.NewRows([]string{"id", "filename"}).
+			AddRow(1, "one")
+		mock.ExpectQuery(query).
+			WillReturnRows(rows).
+			WithArgs(1)
+		mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,
