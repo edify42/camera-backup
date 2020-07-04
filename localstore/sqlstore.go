@@ -54,6 +54,26 @@ type Metadata struct {
 	include      sql.NullString
 }
 
+// GetLocation will return the internal struct location
+func (m *Metadata) GetLocation() string {
+	return m.location
+}
+
+// GetExclude will fetch the excluded regex lookup
+func (m *Metadata) GetExclude() string {
+	return m.exclude.String
+}
+
+// GetInclude will fetch the include regex lookup
+func (m *Metadata) GetInclude() string {
+	return m.include.String
+}
+
+// GetLastModified will fetch the timestamp of the last modified datetime
+func (m *Metadata) GetLastModified() string {
+	return m.lastModified
+}
+
 func (c *Config) createConn() string {
 	return c.location
 }
