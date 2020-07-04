@@ -135,7 +135,7 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    StoredFileRecord
+		want    []StoredFileRecord
 		wantErr bool
 	}{
 		{
@@ -151,15 +151,24 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 				},
 				db: db,
 			},
-			want:    StoredFileRecord{},
+			want: []StoredFileRecord{
+				{
+					FileRecord: FileRecord{
+						Filename: "1",
+						FilePath: "hello",
+						Etag:     "0",
+						Sha1sum:  "0",
+					},
+					ID: 1,
+				},
+			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		query := fmt.Sprintf(`SELECT \* FROM %s WHERE etag IN \(\?\) AND filename IN \(\?\)`, config.DataTable)
-		rows := sqlmock.NewRows([]string{"id", "filename"}).
-			AddRow(1, "one").
-			AddRow(2, "two")
+		rows := sqlmock.NewRows([]string{"id", "filename", "filepath", "sha1sum", "etag"}).
+			AddRow(1, "1", "hello", "0", "0")
 		mock.ExpectQuery(query).
 			WillReturnRows(rows).
 			WithArgs(tt.args.record.Etag, tt.args.record.Filename)

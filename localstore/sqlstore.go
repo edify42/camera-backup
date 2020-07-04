@@ -126,8 +126,9 @@ func (c *Config) WriteFileRecord(record FileRecord, db *sql.DB) error {
 }
 
 // ReadFileRecord will return a set of results based on the input parameters
-func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) (StoredFileRecord, error) {
+func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileRecord, error) {
 	var result StoredFileRecord
+	var records []StoredFileRecord
 	sb := sqlbuilder.NewSelectBuilder()
 	sb.Select("*")
 	sb.From(config.DataTable)
@@ -154,13 +155,14 @@ func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) (StoredFileRecord
 	resp, err := db.Query(sql, args...)
 
 	if err != nil {
-		return StoredFileRecord{}, err
+		return nil, err
 	}
 
-	if resp.Next() {
+	for resp.Next() {
 		resp.Scan(&result.ID, &result.Filename, &result.FilePath, &result.Etag, &result.Sha1sum)
+		records = append(records, result)
 	}
 
 	// fmt.Printf("%v", resp)
-	return result, nil
+	return records, nil
 }
