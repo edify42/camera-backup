@@ -79,7 +79,11 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 		},
 		Unsorted: true, // (optional) set true for faster yet non-deterministic enumeration (see godoc)
 	}
-	_ = godirwalk.Walk(w.Location, helper)
+	err := godirwalk.Walk(w.Location, helper)
+	if err != nil {
+		zap.S().Errorf("failed to walk the walker")
+		return returnObject, err
+	}
 	zap.S().Debugf("all the files found are: %v", buff)
 	return returnObject, nil
 }

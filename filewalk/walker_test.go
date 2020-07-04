@@ -138,6 +138,32 @@ func TestWalkerConfig_Walker(t *testing.T) {
 		{
 			name: "First test case",
 			fields: fields{
+				Location: ".",
+				Exclude:  []string{".*"},
+				Include:  []string{""},
+			},
+			args: args{
+				fh: myHandle,
+			},
+			want:    returnObject,
+			wantErr: false,
+		},
+		{
+			name: "Get this test file only", // THIS TEST IS CURRENTLY BROKEN
+			fields: fields{
+				Location: ".",
+				Exclude:  []string{""},
+				Include:  []string{".*"},
+			},
+			args: args{
+				fh: myHandle,
+			},
+			want:    returnObject,
+			wantErr: false,
+		},
+		{
+			name: "Error testing",
+			fields: fields{
 				Location: "here",
 				Exclude:  []string{""},
 				Include:  []string{""},
@@ -146,7 +172,7 @@ func TestWalkerConfig_Walker(t *testing.T) {
 				fh: myHandle,
 			},
 			want:    returnObject,
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
