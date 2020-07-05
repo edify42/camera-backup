@@ -80,6 +80,12 @@ func (c *Check) Run() {
 	config.New(c.Location)
 	zap.S().Infof("Running the check in %s", config.Location)
 	config.LoadMetadata()
+	files, err := config.GetFiles(c.Location)
+
+	if err != nil {
+		zap.S().Fatalf("help me: %v", err)
+	}
+	zap.S().Debugf("my files! %v", files)
 }
 
 // Init does things to initialise the configuration

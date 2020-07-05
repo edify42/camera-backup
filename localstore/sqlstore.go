@@ -102,7 +102,7 @@ func (c *Config) UpdateMetadata(db *sql.DB) error {
 	query := `
 	INSERT INTO main.metadata (id, name, location, lastModified, absolute, exclude, include)
 	VALUES (1, ?, ?, CURRENT_TIMESTAMP, true, ?, ?);`
-	_, err := db.Exec(query, c.name, c.location, c.exclude, c.include)
+	_, err := db.Exec(query, c.name, c.location, c.include, c.exclude)
 	if err != nil {
 		return err
 	}

@@ -29,7 +29,7 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 
 	if err != nil {
 		zap.S().Errorf("GetFiles failed to call walker: %v", err)
-
+		return results, err
 	}
 
 	// // Database stuff
@@ -48,11 +48,14 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 			Sha1sum:  fileObject.Sha1sum,
 			Etag:     fileObject.Etag,
 		}
-		err := sqlConf.WriteFileRecord(record, db)
-		if err != nil {
-			zap.S().Errorf("Error while writing to the database in init command: %s", c.location)
-			return err
-		}
+		results = append(results, record.FilePath)
+
+		zap.S().Infof("hey there grumpy: %v", record)
+		// err := sqlConf.WriteFileRecord(record, db)
+		// if err != nil {
+		// 	zap.S().Errorf("Error while writing to the database in init command: %s", c.location)
+		// 	return err
+		// }
 	}
 
 	return results, nil
