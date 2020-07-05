@@ -57,12 +57,12 @@ func (w *WalkerConfig) Walker(fh Handler) (ReturnObject, error) {
 			matched := w.returnMatch(osPathname)
 			if matched {
 				zap.S().Debugf("matched: %s", osPathname)
-				file := fh.loadFile(osPathname)
-				sha1sum := fh.sha1sum(file)
+				file := fh.LoadFile(osPathname)
+				sha1sum := fh.getSha1sum(file)
 				zap.S().Debugf("sha1sum of the file is %s", sha1sum) // TODO: make the logging better
-				md5 := fh.md5(file)
+				md5 := fh.getMd5(file)
 				zap.S().Debugf("md5sum of the file is %s", md5)
-				etag := fh.etag(file)
+				etag := fh.getEtag(file)
 				zap.S().Debugf("etag of the file is %s", etag)
 				fileObject.Name = de.Name()
 				fileObject.Path = strings.TrimRight(osPathname, fileObject.Name) // :nice:

@@ -78,6 +78,8 @@ func TestConfig_UpdateMetadata(t *testing.T) {
 	type fields struct {
 		location string
 		name     string
+		exclude  string
+		include  string
 	}
 	type args struct {
 		db *sql.DB
@@ -93,6 +95,8 @@ func TestConfig_UpdateMetadata(t *testing.T) {
 			fields: fields{
 				location: "here",
 				name:     "there",
+				exclude:  ".*",
+				include:  ".*",
 			},
 			args: args{
 				db: db,
@@ -102,13 +106,15 @@ func TestConfig_UpdateMetadata(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mock.ExpectExec("INSERT INTO main.metadata").
-			WithArgs(tt.fields.name, tt.fields.location).
+			WithArgs(tt.fields.name, tt.fields.location, tt.fields.include, tt.fields.exclude).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectCommit()
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Config{
 				location: tt.fields.location,
 				name:     tt.fields.name,
+				exclude:  tt.fields.exclude,
+				include:  tt.fields.include,
 			}
 			if err := c.UpdateMetadata(tt.args.db); (err != nil) != tt.wantErr {
 				t.Errorf("Config.UpdateMetadata() error = %v, wantErr %v", err, tt.wantErr)

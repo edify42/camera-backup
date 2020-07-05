@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/edify42/camera-backup/check"
-	"github.com/edify42/camera-backup/command"
+	command "github.com/edify42/camera-backup/init"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -79,7 +79,7 @@ func (c *Check) Run() {
 	var config check.Config
 	config.New(c.Location)
 	zap.S().Infof("Running the check in %s", config.Location)
-	// config.LoadMetadata()
+	config.LoadMetadata()
 }
 
 // Init does things to initialise the configuration

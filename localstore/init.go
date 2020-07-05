@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/edify42/camera-backup/config"
 	"github.com/manifoldco/promptui"
@@ -15,13 +16,20 @@ import (
 type Config struct {
 	location string
 	name     string `help:"default to sqlstore-v1"`
+	exclude  string `help:"need to write and convert the excluded regex patterns"`
+	include  string `help:"handle the array to string conversion here"`
 }
 
 // NewLocalStore will create stuff...
-func NewLocalStore(location string) *Config {
+func NewLocalStore(location string, include, exclude []string) *Config {
+
+	inc := strings.Join(include[:], config.RegexDivide)
+	exc := strings.Join(exclude[:], config.RegexDivide)
 	return &Config{
 		location,
-		"sqlstore-v1",
+		config.Sqlstore,
+		inc,
+		exc,
 	}
 }
 

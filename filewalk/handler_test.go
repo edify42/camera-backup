@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestHandle_md5(t *testing.T) {
+func TestHandle_getMd5(t *testing.T) {
 	tests := []struct {
 		name  string
 		h     *Handle
@@ -46,14 +46,14 @@ func TestHandle_md5(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &Handle{}
-			if got := h.md5(tt.input); got != tt.want {
-				t.Errorf("Handle.md5() = %v, want %v", got, tt.want)
+			if got := h.getMd5(tt.input); got != tt.want {
+				t.Errorf("Handle.getMd5() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestHandle_sha1sum(t *testing.T) {
+func TestHandle_getSha1sum(t *testing.T) {
 	tests := []struct {
 		name  string
 		h     *Handle
@@ -70,14 +70,14 @@ func TestHandle_sha1sum(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &Handle{}
-			if got := h.sha1sum(tt.input); got != tt.want {
-				t.Errorf("Handle.sha1sum() = %v, want %v", got, tt.want)
+			if got := h.getSha1sum(tt.input); got != tt.want {
+				t.Errorf("Handle.getSha1sum() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestHandle_etag(t *testing.T) {
+func TestHandle_getEtag(t *testing.T) {
 	// Local testing - to be removed and switched out with something more...testable...
 
 	dat, _ := ioutil.ReadFile("/home/ekim/Downloads/ZUKZ2Baseband1.70CN_2.5ST.zip")
@@ -103,7 +103,7 @@ func TestHandle_etag(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &Handle{}
-			if got := h.etag(tt.input); got != tt.want {
+			if got := h.getEtag(tt.input); got != tt.want {
 				t.Errorf("Handle.etag() = %v, want %v", got, tt.want)
 			}
 		})

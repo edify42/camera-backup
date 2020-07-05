@@ -99,19 +99,19 @@ func TestWalkerConfig_returnMatch(t *testing.T) {
 
 type testHandle struct{}
 
-func (h *testHandle) sha1sum(data []byte) string {
+func (h *testHandle) getSha1sum(data []byte) string {
 	return fmt.Sprintf("%x", sha1.Sum(data))
 }
 
-func (h *testHandle) md5(data []byte) string {
+func (h *testHandle) getMd5(data []byte) string {
 	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
-func (h *testHandle) etag(data []byte) string {
+func (h *testHandle) getEtag(data []byte) string {
 	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
-func (h *testHandle) loadFile(path string) []byte {
+func (h *testHandle) LoadFile(path string) []byte {
 	return []byte(path)
 }
 

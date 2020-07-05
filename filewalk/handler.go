@@ -9,29 +9,36 @@ import (
 
 // Handler is my best fwiend
 type Handler interface {
-	etag([]byte) string
-	loadFile(string) []byte
-	md5([]byte) string
-	sha1sum([]byte) string
+	getEtag([]byte) string
+	LoadFile(string) []byte
+	getMd5([]byte) string
+	getSha1sum([]byte) string
 }
 
 // Handle struct...
-type Handle struct{}
+type Handle struct {
+	etag    string
+	file    string
+	md5sum  string
+	sha1sum string
+}
 
 // NewHandler returns a famous struct
-func NewHandler() *Handle {
-	return &Handle{}
+func NewHandler(file string) *Handle {
+	return &Handle{file: file}
 }
 
-func (h *Handle) sha1sum(data []byte) string {
-	return fmt.Sprintf("%x", sha1.Sum(data))
+func (h *Handle) getSha1sum(data []byte) string {
+
+	h.sha1sum = fmt.Sprintf("%x", sha1.Sum(data))
+	return h.sha1sum
 }
 
-func (h *Handle) md5(data []byte) string {
+func (h *Handle) getMd5(data []byte) string {
 	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
-func (h *Handle) etag(data []byte) string {
+func (h *Handle) getEtag(data []byte) string {
 	// Always be splicing 8MB chucks
 	chunkSize := 8 * 1024 * 1024
 	if len(data) < chunkSize {
@@ -49,9 +56,9 @@ func (h *Handle) etag(data []byte) string {
 	return fmt.Sprintf("%s-%d", b, len(chunks))
 }
 
-// Required function to actually do the work of reading a file.
+// LoadFile is a required function to actually do the work of reading a file.
 // should not ever be mocked!
-func (h *Handle) loadFile(file string) []byte {
+func (h *Handle) LoadFile(file string) []byte {
 	dat, err := ioutil.ReadFile(file)
 	check(err)
 	return dat
@@ -73,7 +80,7 @@ func split(buf []byte, lim int) [][]byte {
 		chunks = append(chunks, chunk)
 	}
 	if len(buf) > 0 {
-		chunks = append(chunks, buf[:len(buf)])
+		chunks = append(chunks, buf[:])
 	}
 	return chunks
 }

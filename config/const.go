@@ -15,4 +15,10 @@ const (
 
 	// MetadataTable is where we store our search settings!
 	MetadataTable string = "main.metadata"
+
+	// RegexDivide is the custom character sequence to divide regex for include and exclude
+	RegexDivide string = "||"
+
+	// Sqlstore is the name we write into the metadata
+	Sqlstore string = "sqlstore-v1"
 )

@@ -12,9 +12,20 @@ a file somewhere else on your system which is stored in the backup
 ## Commands
 
 `backup-genie init` - initialises a backup location
-`backup-genie scan` - scan the backup location for changes to files
-`backup-genie sync` - sync the target location with the the backup location
-`backup-genie check` - check a target location against the backup for duplicate files
+`backup-genie check` - check the backup location for changes to files. Prints
+duplicates, missing files from the datastore (new files) and deleted files
+(in datastore but missing from file system) - shows mismatches of hashes too.
+`backup-genie search` - search a target location against the backup for
+pre-existing files
+`backup-genie sync` - sync the target location with the the backup location.
+Copies all files already in the backup location automatically to a sanely
+named folder in the backup location.
+
+### Possible future commands
+
+`backup-genie clean` - removes dups from file system...
+`backup-genie pretty` - sorts files for you in a consistent manner (possibly
+from the file name / type and/or metadata last modified by month).
 
 ## User Flow
 
@@ -61,6 +72,10 @@ keep the sqlstore.db file with the targetted backup location though.
 
 **By design, we always drop** `config.yaml` **in the same location as where**
 `init` **is run**
+
+## MVP Definition
+
+I'd be happy versioning 1.0.0 if we have the 4 main functions defined above.
 
 ## Future Features
 

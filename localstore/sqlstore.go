@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/edify42/camera-backup/config"
 	"github.com/huandu/go-sqlbuilder"
@@ -60,13 +61,15 @@ func (m *Metadata) GetLocation() string {
 }
 
 // GetExclude will fetch the excluded regex lookup
-func (m *Metadata) GetExclude() string {
-	return m.exclude.String
+func (m *Metadata) GetExclude() []string {
+	exc := strings.Split(m.exclude.String, config.RegexDivide)
+	return exc
 }
 
 // GetInclude will fetch the include regex lookup
-func (m *Metadata) GetInclude() string {
-	return m.include.String
+func (m *Metadata) GetInclude() []string {
+	inc := strings.Split(m.include.String, config.RegexDivide)
+	return inc
 }
 
 // GetLastModified will fetch the timestamp of the last modified datetime
@@ -97,9 +100,9 @@ func (c *Config) GetSqliteDB(database string) (*sql.DB, error) {
 func (c *Config) UpdateMetadata(db *sql.DB) error {
 
 	query := `
-	INSERT INTO main.metadata (id, name, location, lastModified, absolute)
-	VALUES (1, ?, ?, CURRENT_TIMESTAMP, true);`
-	_, err := db.Exec(query, c.name, c.location)
+	INSERT INTO main.metadata (id, name, location, lastModified, absolute, exclude, include)
+	VALUES (1, ?, ?, CURRENT_TIMESTAMP, true, ?, ?);`
+	_, err := db.Exec(query, c.name, c.location, c.exclude, c.include)
 	if err != nil {
 		return err
 	}
