@@ -89,12 +89,41 @@ func (c *Config) CreateDB(db *sql.DB) error {
 	}
 
 	// data table definition
-	_, err = db.Exec(data)
+	dataTable := fmt.Sprintf(data, "data")
+	_, err = db.Exec(dataTable)
 	if err != nil {
 		return err
 	}
 
 	// everything worked!
+	return nil
+}
+
+// CreateTempTable will create and return a temporary table to store records
+func (c *Config) CreateTempTable(db *sql.DB) (string, error) {
+
+	// give us a name
+	name := config.RandomName(8)
+	dataTable := fmt.Sprintf(data, name)
+	_, err := db.Exec(dataTable)
+	if err != nil {
+		return "", err
+	}
+
+	// everything worked!
+	return name, nil
+}
+
+// DropTempTable will drop the above temp table
+func (c *Config) DropTempTable(table string, db *sql.DB) error {
+	// maybe we should blacklist a set of tables which shouldn't ever be dropped.
+	// TODO: the above... simply write a blacklist array...
+	query := fmt.Sprintf("DROP %s FROM %s", table, config.DataTable)
+	_, err := db.Exec(query)
+	if err != nil {
+		zap.S().Errorf("DropTempTable could not drop table: %s", table)
+		return err
+	}
 	return nil
 }
 
@@ -112,7 +141,7 @@ CREATE TABLE metadata (
 )
 `
 	data string = `
-CREATE TABLE data (
+CREATE TABLE %s (
 	filename	varchar(255) NOT NULL,
 	filepath	varchar(255) NOT NULL,
 	sha1sum		varchar(255) NOT NULL,
