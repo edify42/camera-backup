@@ -106,7 +106,7 @@ func (c *Config) RunInit() error {
 		return nil
 	}
 	// Attempt to create the database after the config is initialised
-	sqlConf := localstore.NewLocalStore(c.location, c.include, c.exclude)
+	sqlConf := localstore.NewLocalStore(c.location, "noTable", c.include, c.exclude)
 	_ = localstore.InitDB(sqlConf)
 
 	// Try to run the filewalk...

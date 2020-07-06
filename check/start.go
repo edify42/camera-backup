@@ -1,6 +1,9 @@
 package check
 
 import (
+	"fmt"
+
+	"github.com/edify42/camera-backup/config"
 	"github.com/edify42/camera-backup/filewalk"
 	"github.com/edify42/camera-backup/localstore"
 	"go.uber.org/zap"
@@ -32,13 +35,18 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		return results, err
 	}
 
-	// // Database stuff
-	// database := fmt.Sprintf("%s/%s", c.Location, config.DbFile)
-	// db, err := sqlConf.GetSqliteDB(database)
-	// if err != nil {
-	// 	zap.S().Errorf("Error while getting database in init command: %s", c.location)
-	// 	return err
-	// }
+	// Attempt to create the database after the config is initialised
+	sqlConf := localstore.NewLocalStore(c.Location, "noTable", c.include, c.exclude)
+
+	// Database stuff
+	database := fmt.Sprintf("%s/%s", c.Location, config.DbFile)
+	db, err := sqlConf.GetSqliteDB(database)
+	if err != nil {
+		zap.S().Errorf("Error while getting database in GetFiles command: %s", c.Location)
+		return nil, err
+	}
+
+	table, _ := sqlConf.CreateTempTable(db)
 
 	for _, fileObject := range array {
 		zap.S().Debugf("single record dump %v", fileObject)
@@ -51,12 +59,14 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		results = append(results, record.FilePath)
 
 		zap.S().Infof("hey there grumpy: %v", record)
-		// err := sqlConf.WriteFileRecord(record, db)
-		// if err != nil {
-		// 	zap.S().Errorf("Error while writing to the database in init command: %s", c.location)
-		// 	return err
-		// }
+		err := sqlConf.WriteFileRecordTempTable(record, db)
+		if err != nil {
+			zap.S().Errorf("Error while writing to the database in GetFiles command: %s", c.Location)
+			return nil, err
+		}
 	}
+
+	sqlConf.DropTempTable(table, db)
 
 	return results, nil
 }

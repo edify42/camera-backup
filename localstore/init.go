@@ -18,10 +18,11 @@ type Config struct {
 	name     string `help:"default to sqlstore-v1"`
 	exclude  string `help:"need to write and convert the excluded regex patterns"`
 	include  string `help:"handle the array to string conversion here"`
+	table    string `help:"which table we should read/write from"`
 }
 
 // NewLocalStore will create stuff...
-func NewLocalStore(location string, include, exclude []string) *Config {
+func NewLocalStore(location, table string, include, exclude []string) *Config {
 
 	inc := strings.Join(include[:], config.RegexDivide)
 	exc := strings.Join(exclude[:], config.RegexDivide)
@@ -30,6 +31,7 @@ func NewLocalStore(location string, include, exclude []string) *Config {
 		config.Sqlstore,
 		inc,
 		exc,
+		table,
 	}
 }
 
@@ -104,6 +106,7 @@ func (c *Config) CreateTempTable(db *sql.DB) (string, error) {
 
 	// give us a name
 	name := config.RandomName(8)
+	c.table = name
 	dataTable := fmt.Sprintf(data, name)
 	_, err := db.Exec(dataTable)
 	if err != nil {

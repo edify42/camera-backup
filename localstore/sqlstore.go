@@ -148,6 +148,19 @@ func (c *Config) WriteFileRecord(record FileRecord, db *sql.DB) error {
 	return nil
 }
 
+// WriteFileRecordTempTable will write the file info to the data table
+func (c *Config) WriteFileRecordTempTable(record FileRecord, db *sql.DB) error {
+	query := fmt.Sprintf(`
+	INSERT INTO main.%s (filename, filepath, sha1sum, etag, lastCheckTimeStamp)
+	VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);`, c.table)
+
+	_, err := db.Exec(query, record.Filename, record.FilePath, record.Sha1sum, record.Etag)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // ReadFileRecord will return a set of results based on the input parameters
 func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileRecord, error) {
 	var result StoredFileRecord

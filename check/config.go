@@ -27,7 +27,7 @@ func (c *Config) New(checkDir string) {
 
 // LoadMetadata reads the sqlstore and checks the lastModified date matches
 func (c *Config) LoadMetadata() error {
-	sql := localstore.NewLocalStore(c.Location, c.include, c.exclude)
+	sql := localstore.NewLocalStore(c.Location, "notable", c.include, c.exclude)
 	dbfile := fmt.Sprintf("%s/%s", c.Location, config.DbFile)
 	db, _ := sql.GetSqliteDB(dbfile) // TODO: think about refactoring this to make it testable.
 
