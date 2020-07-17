@@ -41,7 +41,8 @@ type FileRecord struct {
 // StoredFileRecord is the FileRecord which is stored in the database
 type StoredFileRecord struct {
 	FileRecord
-	ID int
+	ID        int
+	Timestamp string
 }
 
 // Metadata stores the returned metadata from the sqlstore

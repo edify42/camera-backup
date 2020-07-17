@@ -121,7 +121,7 @@ func (c *Config) CreateTempTable(db *sql.DB) (string, error) {
 func (c *Config) DropTempTable(table string, db *sql.DB) error {
 	// maybe we should blacklist a set of tables which shouldn't ever be dropped.
 	// TODO: the above... simply write a blacklist array...
-	query := fmt.Sprintf("DROP %s FROM %s", table, config.DataTable)
+	query := fmt.Sprintf("DROP  TABLE %s", table)
 	_, err := db.Exec(query)
 	if err != nil {
 		zap.S().Errorf("DropTempTable could not drop table: %s", table)

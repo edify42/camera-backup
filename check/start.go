@@ -66,6 +66,8 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		}
 	}
 
+	sqlConf.Check(table, db)
+
 	sqlConf.DropTempTable(table, db)
 
 	return results, nil
