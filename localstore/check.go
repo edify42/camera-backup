@@ -9,25 +9,30 @@ import (
 )
 
 // Check will compare the input table to the backup location table
+// Using 'EXCEPT', will find all records missing between the tables.
+// Unoptimised for large record sets according to https://stackoverflow.com/questions/45069655/is-there-a-faster-way-to-compare-two-sqlite3-tables-in-python
 func (c *Config) Check(table string, db *sql.DB) error {
 	var result StoredFileRecord
-	var records []StoredFileRecord
-	query := fmt.Sprintf("SELECT filename, filepath, sha1sum, etag FROM %s EXCEPT SELECT filename, filepath, sha1sum, etag FROM main.%s", config.DataTable, table)
-	zap.S().Infof(query)
-	resp, err := db.Query(query)
+	var missingRecords []StoredFileRecord
+	query := "SELECT %s FROM %s %s SELECT %s FROM %s"
+	attr := "filename, filepath, sha1sum, etag" // naturally checks all the file metadata values
+	exceptQuery := fmt.Sprintf(query, attr, config.DataTable, "EXCEPT", attr, table)
+	zap.S().Infof("Except query is: %s", exceptQuery)
+	resp, err := db.Query(exceptQuery)
 
 	if err != nil {
+		zap.S().Error("Could not run exceptQuery")
 		return err
 	}
 
 	for resp.Next() {
 		err = resp.Scan(&result.Filename, &result.FilePath, &result.Sha1sum, &result.Etag)
 		if err != nil {
-			zap.S().Errorf("error happened: %v", err)
+			zap.S().Errorf("Could not scan exceptQuery result")
 			return err
 		}
-		records = append(records, result)
-		zap.S().Infof("found this record in Check: %v which was different %v written at %v", result.Filename, result.Sha1sum, result.Timestamp)
+		missingRecords = append(missingRecords, result)
+		zap.S().Debugf("found this record in Check: %v which was different %v written at %v", result.Filename, result.Sha1sum, result.Timestamp)
 	}
 
 	return nil
