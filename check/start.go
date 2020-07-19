@@ -67,17 +67,36 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		}
 	}
 
+	// Check returns changed or new files.
 	arr, err := sqlConf.Check(true, table, db)
 
-	for _, record := range arr {
-		zap.S().Debugf("Determining what happened to %v", record)
-	}
+	var newFiles []localstore.FileRecord
+	var changedFiles []localstore.FileRecord
+	var missingFiles []localstore.FileRecord
 
 	if err != nil {
 		zap.S().Fatalf("Check could not be run: %v", err)
 	}
 
+	for _, record := range arr {
+		zap.S().Debugf("Determining what happened to %v", record)
+		// Attempt read on the data table - confirm it's a new file.
+		readResults, err := sqlConf.ReadFileRecord(record.FileRecord, table, db)
+		if err != nil {
+			zap.S().Errorf("what happened to my result? %v", err)
+			return nil, err
+		}
+		if len(readResults) == 0 {
+			zap.S().Debug("we got a new file here")
+			newFiles = append(newFiles, record.FileRecord)
+			break
+		}
+	}
+
 	sqlConf.DropTempTable(table, db)
+	zap.S().Debugf("new files: %v", newFiles)
+	zap.S().Debugf("changed files: %v", changedFiles)
+	zap.S().Debugf("missing files: %v", missingFiles)
 
 	return results, nil
 }
