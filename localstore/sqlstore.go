@@ -163,32 +163,17 @@ func (c *Config) WriteFileRecordTempTable(record FileRecord, db *sql.DB) error {
 }
 
 // ReadFileRecord will return a set of results based on the input parameters
-func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileRecord, error) {
+func (c *Config) ReadFileRecord(record FileRecord, table string, db *sql.DB) ([]StoredFileRecord, error) {
 	var result StoredFileRecord
 	var records []StoredFileRecord
-	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("*")
-	sb.From(config.DataTable)
-	// bit ugly but ok...
-	if record.Etag != "" {
-		sb.Where(sb.In("etag", record.Etag))
-	}
-	if record.Filename != "" {
-		sb.Where(sb.In("filename", record.Filename))
-	}
-	if record.FilePath != "" {
-		sb.Where(sb.In("filepath", record.FilePath))
-	}
-	if record.Sha1sum != "" {
-		sb.Where(sb.In("sha1sum", record.Sha1sum))
-	}
-	sql, args := sb.Build()
-	// fmt.Println(sql)
-	// fmt.Println(args...)
+	dbTable := table
 
-	// query := `
-	// SELECT * FROM main.data (filename, filepath, sha1sum, etag, lastCheckTimeStamp)
-	// VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);`
+	if dbTable == "" {
+		dbTable = config.DataTable
+	}
+
+	sql, args := c.readBuilder(dbTable, record)
+
 	resp, err := db.Query(sql, args...)
 
 	if err != nil {
@@ -202,4 +187,25 @@ func (c *Config) ReadFileRecord(record FileRecord, db *sql.DB) ([]StoredFileReco
 
 	// fmt.Printf("%v", resp)
 	return records, nil
+}
+
+// ReadBuilder returns query string and args
+func (c *Config) readBuilder(table string, record FileRecord) (string, []interface{}) {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("*")
+	sb.From(table)
+	// bit ugly but ok...
+	if record.Etag != "" {
+		sb.Where(sb.In("etag", record.Etag))
+	}
+	if record.Filename != "" {
+		sb.Where(sb.In("filename", record.Filename))
+	}
+	if record.FilePath != "" {
+		sb.Where(sb.In("filepath", record.FilePath))
+	}
+	if record.Sha1sum != "" {
+		sb.Where(sb.In("sha1sum", record.Sha1sum))
+	}
+	return sb.Build()
 }

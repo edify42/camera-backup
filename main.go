@@ -130,6 +130,7 @@ type Scan struct {
 	// ScanDir  string `opts:"help=target scan directory,default=/tmp"`
 }
 
+// Run the scan on something
 func (s *Scan) Run() {
 	zap.S().Infof("Running the scan against %s with config in location %s", "yeah", s.Location)
 }

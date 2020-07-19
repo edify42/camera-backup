@@ -23,6 +23,7 @@ func (c *Config) StartNewFileCheck(checker Check) error {
 // StartDB
 
 // GetFiles will call the filewalk functions to grab me some files!
+// It creates a temp table in the datastore and compares the two tables.
 func (c *Config) GetFiles(location string) ([]string, error) {
 	var results []string
 	// Try to run the filewalk...
@@ -66,7 +67,15 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		}
 	}
 
-	sqlConf.Check(table, db)
+	arr, err := sqlConf.Check(true, table, db)
+
+	for _, record := range arr {
+		zap.S().Debugf("Determining what happened to %v", record)
+	}
+
+	if err != nil {
+		zap.S().Fatalf("Check could not be run: %v", err)
+	}
 
 	sqlConf.DropTempTable(table, db)
 
