@@ -67,33 +67,55 @@ func (c *Config) GetFiles(location string) ([]string, error) {
 		}
 	}
 
-	// Check returns changed or new files.
-	arr, err := sqlConf.Check(true, table, db)
-
+	// Big logic dump...lets break this up later.
 	var newFiles []localstore.FileRecord
 	var changedFiles []localstore.FileRecord
 	var missingFiles []localstore.FileRecord
 
+	// Check returns changed or new files.
+	arr, err := sqlConf.Check(true, table, db)
 	if err != nil {
-		zap.S().Fatalf("Check could not be run: %v", err)
+		zap.S().Fatalf("first check could not be run: %v", err)
+	}
+
+	// Check returns changed or missing files.
+	arr2, err := sqlConf.Check(false, table, db)
+	if err != nil {
+		zap.S().Fatalf("first check could not be run: %v", err)
+	}
+
+	// Join arr and arr2, excluding duplicates
+	for _, record := range arr2 {
+		arr = localstore.AppendFileRecordIfMissing(arr, record)
 	}
 
 	for _, record := range arr {
 		zap.S().Debugf("Determining what happened to %v", record)
+		thing := localstore.FileRecord{
+			Filename: record.Filename,
+		}
 		// Attempt read on the data table - confirm it's a new file.
-		readResults, err := sqlConf.ReadFileRecord(record.FileRecord, table, db)
+		readOldResults, err := sqlConf.ReadFileRecord(thing, config.DataTable, db)
+		zap.S().Debugf("hello? %v", readOldResults)
 		if err != nil {
 			zap.S().Errorf("what happened to my result? %v", err)
 			return nil, err
 		}
-		if len(readResults) == 0 {
+		readNewResults, err := sqlConf.ReadFileRecord(record.FileRecord, table, db)
+		if len(readOldResults) == 0 {
 			zap.S().Debug("we got a new file here")
 			newFiles = append(newFiles, record.FileRecord)
-			break
+		} else if len(readNewResults) == 0 {
+			zap.S().Debug("we got a missing file here")
+			missingFiles = append(missingFiles, record.FileRecord)
+		} else {
+			// Must have been a changed file!
+			zap.S().Debugf("Made it here. - something changed!")
+			changedFiles = append(changedFiles, record.FileRecord)
 		}
 	}
 
-	sqlConf.DropTempTable(table, db)
+	// sqlConf.DropTempTable(table, db)
 	zap.S().Debugf("new files: %v", newFiles)
 	zap.S().Debugf("changed files: %v", changedFiles)
 	zap.S().Debugf("missing files: %v", missingFiles)

@@ -56,6 +56,17 @@ type Metadata struct {
 	include      sql.NullString
 }
 
+// AppendFileRecordIfMissing simply adds to the array if not found
+func AppendFileRecordIfMissing(slice []StoredFileRecord, fr StoredFileRecord) []StoredFileRecord {
+	// simply loops over all elements and checks equality
+	for _, ele := range slice {
+		if ele.Filename == fr.Filename && ele.FilePath == fr.FilePath {
+			return slice
+		}
+	}
+	return append(slice, fr)
+}
+
 // GetLocation will return the internal struct location
 func (m *Metadata) GetLocation() string {
 	return m.location
@@ -173,6 +184,8 @@ func (c *Config) ReadFileRecord(record FileRecord, table string, db *sql.DB) ([]
 	}
 
 	sql, args := c.readBuilder(dbTable, record)
+
+	zap.S().Debugf("hello %s, args %v", sql, args)
 
 	resp, err := db.Query(sql, args...)
 
