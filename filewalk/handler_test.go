@@ -1,7 +1,6 @@
 package filewalk
 
 import (
-	"io/ioutil"
 	"testing"
 )
 
@@ -80,7 +79,7 @@ func TestHandle_getSha1sum(t *testing.T) {
 func TestHandle_getEtag(t *testing.T) {
 	// Local testing - to be removed and switched out with something more...testable...
 
-	dat, _ := ioutil.ReadFile("/home/ekim/Downloads/ZUKZ2Baseband1.70CN_2.5ST.zip")
+	dat := make([]byte, 185*1024*256)
 	tests := []struct {
 		name  string
 		h     *Handle
@@ -97,9 +96,13 @@ func TestHandle_getEtag(t *testing.T) {
 			name:  "A test case for large file == etag",
 			h:     &Handle{},
 			input: dat,
-			want:  "f8a515f319f5b4967e5c0212224ca3b5-6",
+			want:  "8079245890315d5bdcfcbbf7a6977ac1-6",
 		},
 	}
+
+	// makes a file which is roughly 46MB
+	// _ = ioutil.WriteFile("file.txt", dat, 0644)
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &Handle{}

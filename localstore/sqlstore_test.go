@@ -183,7 +183,7 @@ func TestConfig_ReadFileRecord(t *testing.T) {
 				location: tt.fields.location,
 				name:     tt.fields.name,
 			}
-			got, err := c.ReadFileRecord(tt.args.record, tt.args.db)
+			got, err := c.ReadFileRecord(tt.args.record, config.DataTable, tt.args.db)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.ReadFileRecord() error = %v, wantErr %v", err, tt.wantErr)
 				return
