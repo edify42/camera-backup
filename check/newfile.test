@@ -1,0 +1,22 @@
+haoelcuhaoethunaoeu
+
+JvUjzkSN
+
+// Contains everything...not great?
+Select * from ( 
+Select filename,etag from JvUjzkSN
+Union all 
+Select filename,etag from data
+) cmpr order by filename;
+
+// Sort of works? But needs to have tables reversed.
+Select *
+From JvUjzkSN as A
+Where NOT EXISTS
+( select * from data as B
+Where A.etag = B.etag
+);
+
+// Check except again -- same as above...needs reversal.
+
+SELECT filename, filepath, sha1sum, etag FROM data EXCEPT SELECT filename, filepath, sha1sum, etag FROM JvUjzkSN

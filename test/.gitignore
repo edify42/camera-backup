@@ -1,0 +1,7 @@
+# test data folders
+testdata_start
+testdata_new_files
+testdata_mix_new_old
+
+# test files
+sqlstore.db
