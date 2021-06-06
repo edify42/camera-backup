@@ -4,7 +4,7 @@ input="${1:-test}"
 test_folder='./test'
 
 # program must be build beforehand!
-# which backup-genie || echo 'please build and compile the program before continuing' && exit 1
+which ./backup-genie || echo 'please build and compile the program before continuing' && exit 1
 
 if [ "$input" = 'clean' ]; then
   rm -rf "$test_folder/testdata_start"

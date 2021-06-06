@@ -6,5 +6,9 @@ sqlstore.db
 scratch
 cp.out
 
+## compiled binary
+camera-backup
+backup-genie
+
 ## Environment
 .env

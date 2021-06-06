@@ -1,3 +1,7 @@
+build:
+	go build
+	mv camera-backup backup-genie # lololo
+
 tester:
 	go test ./... -v
 test-coverage:
