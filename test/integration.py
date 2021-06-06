@@ -67,6 +67,12 @@ if __name__ == '__main__':
     dest='destination',
     help='Destination directory of the new files',
     required=True)
+  parser_start_test.add_argument('-c', '--count', dest='count',
+    type=int,
+    help='Number of files to generate')
+  parser_start_test.add_argument('-m', '--md5',
+    action=argparse.BooleanOptionalAction,
+    help="Generate md5 sum instead of e-tag")
 
   parser_create_mixed_files = subparsers.add_parser('middle', help="Middle test step which creates a mix of new and old files")
   parser_create_mixed_files.add_argument(
@@ -97,9 +103,13 @@ if __name__ == '__main__':
 
   if kwargs['subparser'] == 'generate':
     dest_path = kwargs['destination']
+    file_count = 10
+    if kwargs['count']:
+      file_count = kwargs['count']
+    md5 = kwargs['md5']
     if os.path.isdir(dest_path):
       print('generating fake data to {}'.format(dest_path))
-      generate(dest_path)
+      generate(dest_path, md5, file_count)
     else:
       print('no such directory {} - please create it first'.format(dest_path))
       exit(1)
