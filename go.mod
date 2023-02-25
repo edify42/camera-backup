@@ -17,5 +17,5 @@ require (
 	github.com/posener/complete v1.2.3 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.17.0
-	golang.org/x/sys v0.0.0-20210531080801-fdfd190a6549 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
